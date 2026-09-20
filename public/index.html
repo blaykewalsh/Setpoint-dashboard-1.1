@@ -258,7 +258,19 @@
   .meal-block:last-child{border-bottom:none;}
   .meal-block .m-name{font-weight:700;font-size:14px;}
   .meal-block .m-meta{color:var(--muted);font-size:12px;margin:2px 0 6px;}
-  .meal-block .m-ing{color:var(--text);font-size:13px;opacity:.85;}
+  .meal-recipe{margin-top:4px;}
+  .meal-recipe summary{cursor:pointer;color:var(--accent);font-size:12.5px;font-weight:700;list-style:none;padding:2px 0;}
+  .meal-recipe summary::-webkit-details-marker{display:none;}
+  .meal-recipe summary::before{content:'▸ ';display:inline-block;transition:transform .15s ease;}
+  .meal-recipe[open] summary::before{transform:rotate(90deg);}
+  .meal-recipe[open] summary{margin-bottom:10px;}
+  .ingredient-list{list-style:none;margin:0 0 12px;padding:0;}
+  .ingredient-list li{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px dashed var(--border);font-size:13px;}
+  .ingredient-list li:last-child{border-bottom:none;}
+  .ingredient-list .amt{color:var(--muted);font-weight:600;}
+  .instructions-list{margin:0;padding-left:18px;}
+  .instructions-list li{font-size:13px;color:var(--text);opacity:.9;line-height:1.6;margin-bottom:6px;}
+  .instructions-list li:last-child{margin-bottom:0;}
   .shop-cols{columns:2;column-gap:26px;}
   @media(max-width:700px){.shop-cols{columns:1;}}
   .shop-cols li{break-inside:avoid;padding:6px 0;border-bottom:1px dashed var(--border);font-size:13.5px;display:flex;justify-content:space-between;align-items:center;}
@@ -274,6 +286,12 @@
   .cal-numbers .eaten{font-size:32px;font-family:'Bebas Neue';}
   .cal-numbers .of-target{color:var(--muted);font-size:14px;}
   .progress-track{height:10px;border-radius:6px;background:var(--panel-2);overflow:hidden;}
+  .progress-track.small{height:6px;}
+  .macro-progress-row{display:flex;gap:16px;flex-wrap:wrap;margin:16px 0 4px;}
+  .macro-progress{flex:1;min-width:110px;}
+  .macro-progress .mp-label{display:block;font-size:10.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;font-weight:700;}
+  .macro-progress .mp-nums{display:block;font-size:14px;font-weight:700;margin:4px 0 6px;}
+  .macro-progress .mp-target{color:var(--muted);font-weight:600;font-size:11.5px;}
   .progress-fill{height:100%;border-radius:6px;background:var(--accent);transition:width .3s ease;}
   .progress-fill.over{background:var(--red);}
   .cal-input-row{display:flex;gap:8px;margin:16px 0 6px;}
@@ -386,6 +404,13 @@
 </div>
 
 <!-- ============ PRIVACY POLICY & TERMS MODAL ============ -->
+<div class="legal-modal-overlay" id="announcementOverlay">
+  <div class="legal-modal" style="max-width:440px;">
+    <h2>📣 Announcement</h2>
+    <p id="announcementText" style="margin-top:14px;"></p>
+    <button class="btn btn-primary" style="margin-top:18px;" onclick="dismissAnnouncement()">Got it</button>
+  </div>
+</div>
 <div class="legal-modal-overlay" id="legalModalOverlay" onclick="if(event.target===this) closeLegalModal();">
   <div class="legal-modal">
     <button class="close-modal" onclick="closeLegalModal()" aria-label="Close">✕</button>
@@ -396,7 +421,7 @@
     <p>Your username and a hashed (never plain-text) password, plus whatever you enter into the app: workout splits, PRs, bodyweight, your diet profile and generated meal plans, your chosen sport, and any food descriptions you type into the AI Nutritionist.</p>
 
     <h3>Third parties</h3>
-    <p>When you log food, your description is sent to CalorieNinjas (a nutrition-lookup API) to estimate calories and macros. If you're using this inside Claude, that request may go to Anthropic instead. Neither is used for advertising, and your data isn't sold or shared with anyone else.</p>
+    <p>When you log food, your description is matched against a small built-in food database on the server, no external service sees it. If you're using this inside Claude, that request may go to Anthropic instead. Neither is used for advertising, and your data isn't sold or shared with anyone else.</p>
 
     <h3>No ads, no tracking</h3>
     <p>This app doesn't run ads, doesn't use analytics or tracking cookies, and doesn't build a profile of you beyond the app data described above.</p>
@@ -612,6 +637,23 @@
             <span class="of-target">of <span id="calTargetLabel">-</span> kcal today</span>
           </div>
           <div class="progress-track"><div class="progress-fill" id="calProgressFill" style="width:0%;"></div></div>
+          <div class="macro-progress-row">
+            <div class="macro-progress">
+              <span class="mp-label">Protein</span>
+              <span class="mp-nums"><span id="macroPEaten">0</span>g <span class="mp-target">/ <span id="macroPTarget">0</span>g</span></span>
+              <div class="progress-track small"><div class="progress-fill" id="macroPFill" style="width:0%;background:var(--accent);"></div></div>
+            </div>
+            <div class="macro-progress">
+              <span class="mp-label">Carbs</span>
+              <span class="mp-nums"><span id="macroCEaten">0</span>g <span class="mp-target">/ <span id="macroCTarget">0</span>g</span></span>
+              <div class="progress-track small"><div class="progress-fill" id="macroCFill" style="width:0%;background:var(--blue);"></div></div>
+            </div>
+            <div class="macro-progress">
+              <span class="mp-label">Fat</span>
+              <span class="mp-nums"><span id="macroFEaten">0</span>g <span class="mp-target">/ <span id="macroFTarget">0</span>g</span></span>
+              <div class="progress-track small"><div class="progress-fill" id="macroFFill" style="width:0%;background:var(--red);"></div></div>
+            </div>
+          </div>
           <div class="cal-input-row">
             <input type="text" id="foodInput" placeholder="e.g. two scrambled eggs and a slice of toast" onkeydown="if(event.key==='Enter') logFood();">
             <button class="btn-add" id="logFoodBtn" onclick="logFood()">Log it</button>
@@ -811,32 +853,72 @@ const SPORTS = {
 // Meal library: id -> {name, cals, p, c, f, ingredients: [name]}
 const MEALS = {
   breakfast: [
-    {name:'Greek yogurt, oats & berries', cals:420, p:32, c:52, f:9, ing:['Greek yogurt','Rolled oats','Mixed berries','Honey']},
-    {name:'Veggie egg scramble & toast', cals:460, p:30, c:38, f:20, ing:['Eggs','Spinach','Bell pepper','Wholegrain bread']},
-    {name:'Protein oats with peanut butter', cals:510, p:35, c:55, f:16, ing:['Rolled oats','Whey protein','Peanut butter','Banana']},
-    {name:'Cottage cheese & fruit bowl', cals:380, p:30, c:40, f:10, ing:['Cottage cheese','Pineapple','Almonds','Cinnamon']},
-    {name:'Smoked salmon bagel', cals:470, p:28, c:45, f:18, ing:['Bagel','Smoked salmon','Cream cheese','Red onion']}
+    {name:'Greek yogurt, oats & berries', cals:420, p:32, c:52, f:9,
+      ingredients:[{item:'Greek yogurt',amount:'200g'},{item:'Rolled oats',amount:'40g'},{item:'Mixed berries',amount:'80g'},{item:'Honey',amount:'1 tsp'}],
+      steps:['Add the oats to a bowl and stir in the Greek yogurt.','Top with the mixed berries.','Drizzle with honey and serve, or leave in the fridge overnight for softer oats.']},
+    {name:'Veggie egg scramble & toast', cals:460, p:30, c:38, f:20,
+      ingredients:[{item:'Eggs',amount:'3 large'},{item:'Spinach',amount:'30g'},{item:'Bell pepper',amount:'1/2, diced'},{item:'Wholegrain bread',amount:'2 slices'}],
+      steps:['Whisk the eggs in a bowl with a pinch of salt and pepper.','Heat a non-stick pan over medium heat, add the bell pepper and cook 2 minutes.','Add the spinach and eggs, stirring gently until just set.','Toast the bread and serve alongside.']},
+    {name:'Protein oats with peanut butter', cals:510, p:35, c:55, f:16,
+      ingredients:[{item:'Rolled oats',amount:'50g'},{item:'Whey protein',amount:'1 scoop (30g)'},{item:'Peanut butter',amount:'1 tbsp'},{item:'Banana',amount:'1, sliced'}],
+      steps:['Cook the oats with water or milk according to the packet, about 3-4 minutes.','Remove from heat and stir in the protein powder until smooth.','Top with sliced banana and a spoon of peanut butter.']},
+    {name:'Cottage cheese & fruit bowl', cals:380, p:30, c:40, f:10,
+      ingredients:[{item:'Cottage cheese',amount:'200g'},{item:'Pineapple',amount:'100g, chopped'},{item:'Almonds',amount:'15g, chopped'},{item:'Cinnamon',amount:'a pinch'}],
+      steps:['Spoon the cottage cheese into a bowl.','Add the chopped pineapple on top.','Scatter over the chopped almonds and a pinch of cinnamon.']},
+    {name:'Smoked salmon bagel', cals:470, p:28, c:45, f:18,
+      ingredients:[{item:'Bagel',amount:'1'},{item:'Smoked salmon',amount:'60g'},{item:'Cream cheese',amount:'2 tbsp'},{item:'Red onion',amount:'a few thin slices'}],
+      steps:['Slice the bagel in half and toast if you like it warm.','Spread cream cheese on both halves.','Layer the smoked salmon and red onion on top, then close the bagel.']}
   ],
   lunch: [
-    {name:'Chicken, rice & broccoli', cals:620, p:48, c:60, f:16, ing:['Chicken breast','Jasmine rice','Broccoli','Olive oil']},
-    {name:'Tuna & bean salad', cals:540, p:40, c:42, f:20, ing:['Tuna','Cannellini beans','Cherry tomatoes','Mixed leaves']},
-    {name:'Turkey wrap & side salad', cals:560, p:38, c:48, f:19, ing:['Turkey breast','Tortilla wrap','Avocado','Mixed leaves']},
-    {name:'Beef & sweet potato bowl', cals:640, p:42, c:55, f:22, ing:['Lean beef mince','Sweet potato','Kale','Tahini']},
-    {name:'Lentil & feta salad', cals:520, p:26, c:58, f:18, ing:['Lentils','Feta cheese','Cucumber','Cherry tomatoes']}
+    {name:'Chicken, rice & broccoli', cals:620, p:48, c:60, f:16,
+      ingredients:[{item:'Chicken breast',amount:'180g'},{item:'Jasmine rice',amount:'75g uncooked'},{item:'Broccoli',amount:'100g'},{item:'Olive oil',amount:'1 tbsp'}],
+      steps:['Cook the rice according to the packet instructions.','Season the chicken breast and pan-fry in olive oil, about 6-7 minutes per side until cooked through.','Steam or boil the broccoli for 4-5 minutes.','Slice the chicken and serve over the rice with broccoli on the side.']},
+    {name:'Tuna & bean salad', cals:540, p:40, c:42, f:20,
+      ingredients:[{item:'Tuna',amount:'1 can (145g), drained'},{item:'Cannellini beans',amount:'100g, drained'},{item:'Cherry tomatoes',amount:'80g, halved'},{item:'Mixed leaves',amount:'2 large handfuls'}],
+      steps:['Add the mixed leaves to a bowl as a base.','Flake in the tuna and scatter over the cannellini beans and cherry tomatoes.','Toss together with a drizzle of olive oil and season to taste.']},
+    {name:'Turkey wrap & side salad', cals:560, p:38, c:48, f:19,
+      ingredients:[{item:'Turkey breast',amount:'120g, sliced'},{item:'Tortilla wrap',amount:'1 large'},{item:'Avocado',amount:'1/2, sliced'},{item:'Mixed leaves',amount:'1 handful'}],
+      steps:['Lay the tortilla flat and layer the turkey, avocado and mixed leaves down the centre.','Season lightly and roll the wrap tightly, tucking in the sides as you go.','Slice in half to serve.']},
+    {name:'Beef & sweet potato bowl', cals:640, p:42, c:55, f:22,
+      ingredients:[{item:'Lean beef mince',amount:'150g'},{item:'Sweet potato',amount:'1 medium, cubed'},{item:'Kale',amount:'40g'},{item:'Tahini',amount:'1 tbsp'}],
+      steps:['Roast the cubed sweet potato at 200°C for 20-25 minutes until tender.','Brown the beef mince in a pan over medium-high heat, about 8 minutes.','Wilt the kale in the same pan for the last 2 minutes.','Combine in a bowl and drizzle with tahini.']},
+    {name:'Lentil & feta salad', cals:520, p:26, c:58, f:18,
+      ingredients:[{item:'Lentils',amount:'150g cooked (or 1 can, drained)'},{item:'Feta cheese',amount:'50g, crumbled'},{item:'Cucumber',amount:'1/2, diced'},{item:'Cherry tomatoes',amount:'80g, halved'}],
+      steps:['Combine the lentils, cucumber and cherry tomatoes in a bowl.','Crumble the feta over the top.','Dress with olive oil, lemon juice, salt and pepper to taste.']}
   ],
   dinner: [
-    {name:'Salmon, quinoa & greens', cals:610, p:42, c:45, f:24, ing:['Salmon fillet','Quinoa','Asparagus','Lemon']},
-    {name:'Stir-fry chicken & noodles', cals:590, p:40, c:58, f:16, ing:['Chicken thigh','Egg noodles','Mixed stir-fry veg','Soy sauce']},
-    {name:'Baked cod & new potatoes', cals:530, p:38, c:48, f:14, ing:['Cod fillet','New potatoes','Green beans','Butter']},
-    {name:'Turkey chili', cals:560, p:44, c:46, f:16, ing:['Turkey mince','Kidney beans','Chopped tomatoes','Onion']},
-    {name:'Tofu & vegetable curry', cals:540, p:26, c:52, f:22, ing:['Tofu','Coconut milk','Mixed vegetables','Basmati rice']}
+    {name:'Salmon, quinoa & greens', cals:610, p:42, c:45, f:24,
+      ingredients:[{item:'Salmon fillet',amount:'150g'},{item:'Quinoa',amount:'60g uncooked'},{item:'Asparagus',amount:'100g'},{item:'Lemon',amount:'1/2, for juice'}],
+      steps:['Cook the quinoa according to the packet, about 15 minutes.','Season the salmon and pan-fry skin-side down for 4 minutes, then flip for 2-3 minutes more.','Steam or griddle the asparagus for 3-4 minutes.','Plate everything together and squeeze over the lemon juice.']},
+    {name:'Stir-fry chicken & noodles', cals:590, p:40, c:58, f:16,
+      ingredients:[{item:'Chicken thigh',amount:'180g, sliced'},{item:'Egg noodles',amount:'1 nest (75g)'},{item:'Mixed stir-fry veg',amount:'150g'},{item:'Soy sauce',amount:'2 tbsp'}],
+      steps:['Cook the noodles according to the packet, then drain and set aside.','Stir-fry the chicken in a hot wok or pan for 5-6 minutes until cooked through.','Add the mixed vegetables and cook for 3 more minutes.','Toss in the noodles and soy sauce, and stir-fry for a final 2 minutes.']},
+    {name:'Baked cod & new potatoes', cals:530, p:38, c:48, f:14,
+      ingredients:[{item:'Cod fillet',amount:'180g'},{item:'New potatoes',amount:'250g, halved'},{item:'Green beans',amount:'100g'},{item:'Butter',amount:'1 tbsp'}],
+      steps:['Boil the new potatoes for 15-18 minutes until tender.','Meanwhile, bake the cod at 200°C for 12-15 minutes until it flakes easily.','Steam the green beans for the last 4-5 minutes.','Toss the potatoes in butter and serve alongside the cod and beans.']},
+    {name:'Turkey chili', cals:560, p:44, c:46, f:16,
+      ingredients:[{item:'Turkey mince',amount:'200g'},{item:'Kidney beans',amount:'1 can (400g), drained'},{item:'Chopped tomatoes',amount:'1 can (400g)'},{item:'Onion',amount:'1, diced'}],
+      steps:['Cook the onion in a large pan over medium heat for 3-4 minutes until soft.','Add the turkey mince and brown for 5-6 minutes.','Stir in the chopped tomatoes and kidney beans, along with chili powder or cumin to taste.','Simmer for 20 minutes, stirring occasionally.']},
+    {name:'Tofu & vegetable curry', cals:540, p:26, c:52, f:22,
+      ingredients:[{item:'Tofu',amount:'200g, cubed'},{item:'Coconut milk',amount:'200ml'},{item:'Mixed vegetables',amount:'200g'},{item:'Basmati rice',amount:'75g uncooked'}],
+      steps:['Cook the rice according to the packet instructions.','Pan-fry the tofu cubes for 5 minutes until lightly golden, then set aside.','In the same pan, cook the mixed vegetables for 3-4 minutes with curry paste or powder.','Add the coconut milk and tofu back in, and simmer for 8-10 minutes. Serve over the rice.']}
   ],
   snack: [
-    {name:'Protein shake & banana', cals:260, p:26, c:28, f:5, ing:['Whey protein','Banana','Milk']},
-    {name:'Almonds & apple', cals:230, p:6, c:24, f:13, ing:['Almonds','Apple']},
-    {name:'Rice cakes & peanut butter', cals:250, p:8, c:26, f:13, ing:['Rice cakes','Peanut butter']},
-    {name:'Cottage cheese & pineapple', cals:200, p:20, c:20, f:3, ing:['Cottage cheese','Pineapple']},
-    {name:'Beef jerky & trail mix', cals:270, p:22, c:18, f:12, ing:['Beef jerky','Trail mix']}
+    {name:'Protein shake & banana', cals:260, p:26, c:28, f:5,
+      ingredients:[{item:'Whey protein',amount:'1 scoop (30g)'},{item:'Banana',amount:'1'},{item:'Milk',amount:'250ml'}],
+      steps:['Add the milk and protein powder to a shaker or blender.','Shake or blend until smooth.','Eat the banana alongside, or blend it in for a thicker shake.']},
+    {name:'Almonds & apple', cals:230, p:6, c:24, f:13,
+      ingredients:[{item:'Almonds',amount:'20g (a small handful)'},{item:'Apple',amount:'1'}],
+      steps:['Slice the apple if preferred.','Eat alongside the almonds.']},
+    {name:'Rice cakes & peanut butter', cals:250, p:8, c:26, f:13,
+      ingredients:[{item:'Rice cakes',amount:'2'},{item:'Peanut butter',amount:'1.5 tbsp'}],
+      steps:['Spread the peanut butter evenly across both rice cakes.']},
+    {name:'Cottage cheese & pineapple', cals:200, p:20, c:20, f:3,
+      ingredients:[{item:'Cottage cheese',amount:'150g'},{item:'Pineapple',amount:'80g, chopped'}],
+      steps:['Spoon the cottage cheese into a bowl.','Top with the chopped pineapple.']},
+    {name:'Beef jerky & trail mix', cals:270, p:22, c:18, f:12,
+      ingredients:[{item:'Beef jerky',amount:'30g'},{item:'Trail mix',amount:'30g'}],
+      steps:['No prep needed, portion out and eat.']}
   ]
 };
 
@@ -1200,6 +1282,21 @@ function enterApp(){
   renderStatsPage();
   renderDietPage();
   renderSportsPage();
+  if(usingBackendAccount) checkAnnouncement();
+}
+
+async function checkAnnouncement(){
+  try{
+    const ann = await apiRequest('/api/announcement', { headers:{ 'Authorization':'Bearer '+authToken } });
+    if(ann){
+      document.getElementById('announcementText').textContent = ann.message;
+      document.getElementById('announcementOverlay').classList.add('open');
+    }
+  }catch(e){ /* not critical */ }
+}
+async function dismissAnnouncement(){
+  document.getElementById('announcementOverlay').classList.remove('open');
+  try{ await apiRequest('/api/announcement/dismiss', { method:'POST', headers:{ 'Authorization':'Bearer '+authToken } }); }catch(e){}
 }
 
 /* ============================================================
@@ -1570,9 +1667,9 @@ function generateDietPlan(){
     ];
   });
 
-  // shopping list: aggregate ingredient names
+  // shopping list: aggregate ingredient names (amounts aren't summed, just how often each shows up)
   const shop = {};
-  week.flat().forEach(m => m.ing.forEach(i => { shop[i] = (shop[i]||0) + 1; }));
+  week.flat().forEach(m => m.ingredients.forEach(ing => { shop[ing.item] = (shop[ing.item]||0) + 1; }));
 
   data.diet.profile = {sex,age,height,weight,goal,activity,freq,variety};
   data.diet.plan = { calories: target, tdee: Math.round(tdee), bmr: Math.round(bmr), protein: proteinG, carbs: carbG, fat: fatG, goalNote, week, shop };
@@ -1620,7 +1717,15 @@ function renderDietDay(){
     <div class="meal-block">
       <div class="m-name">${labels[i]}: ${escapeHtml(m.name)}</div>
       <div class="m-meta">${m.cals} kcal · P${m.p}g · C${m.c}g · F${m.f}g</div>
-      <div class="m-ing">${m.ing.join(', ')}</div>
+      <details class="meal-recipe">
+        <summary>Recipe &amp; measurements</summary>
+        <ul class="ingredient-list">
+          ${m.ingredients.map(ing => `<li><span>${escapeHtml(ing.item)}</span><span class="amt">${escapeHtml(ing.amount)}</span></li>`).join('')}
+        </ul>
+        <ol class="instructions-list">
+          ${m.steps.map(s => `<li>${escapeHtml(s)}</li>`).join('')}
+        </ol>
+      </details>
     </div>`).join('');
 }
 
@@ -1650,7 +1755,7 @@ function finalizeGoalDay(log){
 
 // Inside Claude, window.storage exists and Claude authorizes the direct API call for us.
 // Outside Claude (e.g. self-hosted), there's no such thing, so this calls a small backend
-// route instead - see server.js - which uses a free nutrition API (CalorieNinjas) server-side.
+// route instead - see server.js - which uses a small built-in food database, no external API.
 async function estimateFoodAI(description){
   if(storageBackend === 'native'){
     const response = await fetch("https://api.anthropic.com/v1/messages", {
@@ -1723,14 +1828,28 @@ function renderCalorieCounter(){
   if(!data.diet.plan) return;
   ensureDietLogFresh();
   const log = data.diet.dailyLog;
-  const target = data.diet.plan.calories;
+  const plan = data.diet.plan;
+  const target = plan.calories;
   const total = log.entries.reduce((s,e)=>s+e.cals,0);
+  const totalP = log.entries.reduce((s,e)=>s+(e.p||0),0);
+  const totalC = log.entries.reduce((s,e)=>s+(e.c||0),0);
+  const totalF = log.entries.reduce((s,e)=>s+(e.f||0),0);
   const pct = Math.min(100, Math.round((total/target)*100) || 0);
   document.getElementById('calEaten').textContent = total;
   document.getElementById('calTargetLabel').textContent = target;
   const fill = document.getElementById('calProgressFill');
   fill.style.width = pct + '%';
   fill.classList.toggle('over', total > target);
+
+  document.getElementById('macroPEaten').textContent = Math.round(totalP);
+  document.getElementById('macroPTarget').textContent = plan.protein;
+  document.getElementById('macroPFill').style.width = Math.min(100, Math.round((totalP/plan.protein)*100) || 0) + '%';
+  document.getElementById('macroCEaten').textContent = Math.round(totalC);
+  document.getElementById('macroCTarget').textContent = plan.carbs;
+  document.getElementById('macroCFill').style.width = Math.min(100, Math.round((totalC/plan.carbs)*100) || 0) + '%';
+  document.getElementById('macroFEaten').textContent = Math.round(totalF);
+  document.getElementById('macroFTarget').textContent = plan.fat;
+  document.getElementById('macroFFill').style.width = Math.min(100, Math.round((totalF/plan.fat)*100) || 0) + '%';
 
   document.getElementById('foodLogList').innerHTML = log.entries.map((e,i)=>`
     <div class="log-item">
@@ -1873,10 +1992,26 @@ async function loadRankList(){
           <div class="row-sub">from ${row.sourceWeight}kg × ${row.sourceReps}</div>
         </div>
         <div class="rank-value">${row.best1RM}<span class="unit">kg est. 1RM</span></div>
+        ${isAdminUser ? `<button class="del-row" title="Remove this PR" onclick="deleteRankedPR('${escapeAttr(row.key)}','${escapeAttr(selectedRankExercise)}',${row.sourceWeight},${row.sourceReps},'${escapeAttr(row.sourceDate||'')}')">✕</button>` : ''}
       </div>`;
     }).join('');
   }catch(e){
     list.innerHTML = `<p class="ai-error">Couldn't load rankings right now.</p>`;
+  }
+}
+
+async function deleteRankedPR(key, exercise, weight, reps, date){
+  const ok = confirm('Remove this PR from the leaderboard? This deletes it from that account\'s Stats tab too, permanently.');
+  if(!ok) return;
+  try{
+    await apiRequest('/api/admin/pr', {
+      method:'DELETE',
+      headers:{'Content-Type':'application/json','Authorization':'Bearer '+authToken},
+      body: JSON.stringify({ key, exercise, weight, reps, date })
+    });
+    loadRankList();
+  }catch(e){
+    alert("Couldn't remove that PR right now.");
   }
 }
 
@@ -1937,7 +2072,65 @@ async function renderAdminPage(){
         </tbody>
       </table>
       </div>
+    </div>
+    <div class="card" style="margin-top:18px;">
+      <h3>Announcement</h3>
+      <p class="cal-hint">Shown once to every account next time they open the site. Posting a new one replaces any active announcement and shows again to everyone, even people who already dismissed the last one.</p>
+      <div class="form-row" style="align-items:flex-start;">
+        <input type="text" id="annMessage" placeholder="e.g. New Ranked tab is live!" style="flex:2;min-width:220px;">
+        <select id="annDuration" style="padding:9px 11px;border-radius:8px;border:1px solid var(--border);background:var(--panel-2);color:var(--text);font-size:13px;">
+          <option value="24">1 day</option>
+          <option value="72">3 days</option>
+          <option value="168">1 week</option>
+          <option value="720">30 days</option>
+        </select>
+        <button class="btn-add" onclick="postAnnouncement()">Post</button>
+      </div>
+    </div>
+    <div class="card" style="margin-top:18px;">
+      <h3>AI Nutritionist logs</h3>
+      <p class="cal-hint">Recent food entries people have typed. Unsuccessful ones show what wasn't recognized, useful for deciding what to add to FOOD_DB in server.js.</p>
+      <div id="nutritionLogsBox"><p class="ai-thinking">Loading…</p></div>
     </div>`;
+
+  loadNutritionLogs();
+}
+
+async function postAnnouncement(){
+  const message = document.getElementById('annMessage').value.trim();
+  const durationHours = document.getElementById('annDuration').value;
+  if(!message){ alert('Enter an announcement message first.'); return; }
+  try{
+    await apiRequest('/api/admin/announcement', {
+      method:'POST', headers:{'Content-Type':'application/json','Authorization':'Bearer '+authToken},
+      body: JSON.stringify({ message, durationHours })
+    });
+    document.getElementById('annMessage').value = '';
+    alert('Announcement posted.');
+  }catch(e){
+    alert("Couldn't post that announcement right now.");
+  }
+}
+
+async function loadNutritionLogs(){
+  const box = document.getElementById('nutritionLogsBox');
+  try{
+    const logs = await apiRequest('/api/admin/nutrition-logs', { headers:{ 'Authorization':'Bearer '+authToken } });
+    if(!logs.length){ box.innerHTML = `<p class="empty">No food logs yet.</p>`; return; }
+    box.innerHTML = `<div class="table-scroll"><table>
+      <thead><tr><th>When</th><th>Typed</th><th>Result</th></tr></thead>
+      <tbody>
+        ${logs.slice(0,100).map(l => `
+          <tr>
+            <td style="white-space:nowrap;">${new Date(l.at).toLocaleString()}</td>
+            <td>${escapeHtml(l.description)}</td>
+            <td>${l.success ? `<span class="pill pill-accent">Matched: ${escapeHtml(l.matched)}</span>` : `<span class="pill pill-red">Not recognized</span>`}</td>
+          </tr>`).join('')}
+      </tbody>
+    </table></div>`;
+  }catch(e){
+    box.innerHTML = `<p class="ai-error">Couldn't load nutrition logs right now.</p>`;
+  }
 }
 
 function formatUptime(seconds){
