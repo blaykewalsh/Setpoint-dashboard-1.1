@@ -439,6 +439,7 @@
       <button class="nav-btn" data-page="diet" onclick="goPage('diet')">🍽️&nbsp; Dietary</button>
       <button class="nav-btn" data-page="sports" onclick="goPage('sports')">🏀&nbsp; Sports</button>
       <button class="nav-btn" data-page="ranked" onclick="goPage('ranked')">🏆&nbsp; Ranked</button>
+      <button class="nav-btn nav-admin" data-page="admin" onclick="goPage('admin')" style="display:none;">🛠️&nbsp; Admin</button>
     </nav>
     <div class="sb-foot">
       <div class="sb-user">Signed in as<br><b id="sbUsername"></b></div>
@@ -646,6 +647,12 @@
       <div class="page-head"><div><h1>Ranked</h1><p>See how your lifts stack up against everyone else on Setpoint.</p></div></div>
       <div id="rankedContent"></div>
     </section>
+
+    <!-- ADMIN -->
+    <section class="page" id="page-admin">
+      <div class="page-head"><div><h1>Admin</h1><p>Usage overview and account management.</p></div></div>
+      <div id="adminContent"></div>
+    </section>
   </main>
 </div>
 <div class="mobile-topbar">
@@ -661,6 +668,7 @@
   <button class="nav-btn" data-page="diet" onclick="goPage('diet');closeDrawer();">🍽️&nbsp; Dietary</button>
   <button class="nav-btn" data-page="sports" onclick="goPage('sports');closeDrawer();">🏀&nbsp; Sports</button>
   <button class="nav-btn" data-page="ranked" onclick="goPage('ranked');closeDrawer();">🏆&nbsp; Ranked</button>
+  <button class="nav-btn nav-admin" data-page="admin" onclick="goPage('admin');closeDrawer();" style="display:none;">🛠️&nbsp; Admin</button>
   <div class="sb-foot">
     <div class="sb-user">Signed in as<br><b id="sbUsernameMobile"></b></div>
     <button class="logout-btn" onclick="handleLogout()">Log out</button>
@@ -963,6 +971,7 @@ function hideAuthError(){ document.getElementById('authError').style.display='no
 
 let authToken = null;
 let usingBackendAccount = false;
+let isAdminUser = false;
 
 // Talks to this site's own backend (server.js) so accounts and data are shared
 // across any device or browser, not tied to one device's local storage.
@@ -1006,6 +1015,28 @@ async function apiSaveData(){
 }
 async function apiDeleteAccount(){
   await apiRequest('/api/account', { method:'DELETE', headers:{ 'Authorization':'Bearer '+authToken } });
+}
+async function apiMe(){
+  return apiRequest('/api/me', { headers:{ 'Authorization':'Bearer '+authToken } });
+}
+// Checks admin status server-side after any successful backend login. Never
+// assume; always ask, since this is the one thing the UI must get right.
+async function refreshAdminStatus(){
+  try{
+    const me = await apiMe();
+    isAdminUser = !!me.isAdmin;
+  }catch(e){
+    isAdminUser = false;
+  }
+}
+async function apiAdminOverview(){
+  return apiRequest('/api/admin/overview', { headers:{ 'Authorization':'Bearer '+authToken } });
+}
+async function apiAdminDeleteUser(key){
+  await apiRequest('/api/admin/users/'+encodeURIComponent(key), { method:'DELETE', headers:{ 'Authorization':'Bearer '+authToken } });
+}
+async function apiAdminResetPassword(key, newPassword){
+  await apiRequest('/api/admin/users/'+encodeURIComponent(key)+'/password', { method:'PUT', headers:{'Content-Type':'application/json','Authorization':'Bearer '+authToken}, body: JSON.stringify({ newPassword }) });
 }
 
 // Fallback: an account that only lives in this browser's own storage, used
@@ -1056,7 +1087,7 @@ async function handleSignup(){
   const remember = document.getElementById('suRemember').checked;
 
   if(storageBackend === 'native'){
-    try{ await createLocalAccount(u,p); if(remember) await rememberSession(); enterApp(); }
+    try{ await createLocalAccount(u,p); isAdminUser = false; if(remember) await rememberSession(); enterApp(); }
     catch(e){ showAuthError(e.message); }
     return;
   }
@@ -1067,12 +1098,13 @@ async function handleSignup(){
     currentUser = result.username;
     usingBackendAccount = true;
     data = emptyData();
+    await refreshAdminStatus();
     if(remember) await rememberSession();
     enterApp();
   }catch(e){
     console.error(e);
     if(e.isNetwork){
-      try{ await createLocalAccount(u,p); if(remember) await rememberSession(); enterApp(); }
+      try{ await createLocalAccount(u,p); isAdminUser = false; if(remember) await rememberSession(); enterApp(); }
       catch(e2){ showAuthError(e2.message); }
     } else {
       showAuthError(e.message);
@@ -1087,7 +1119,7 @@ async function handleLogin(){
   const remember = document.getElementById('loginRemember').checked;
 
   if(storageBackend === 'native'){
-    try{ await loginLocalAccount(u,p); if(remember) await rememberSession(); enterApp(); }
+    try{ await loginLocalAccount(u,p); isAdminUser = false; if(remember) await rememberSession(); enterApp(); }
     catch(e){ showAuthError(e.message); }
     return;
   }
@@ -1098,12 +1130,13 @@ async function handleLogin(){
     currentUser = result.username;
     usingBackendAccount = true;
     data = await apiGetData();
+    await refreshAdminStatus();
     if(remember) await rememberSession();
     enterApp();
   }catch(e){
     console.error(e);
     if(e.isNetwork){
-      try{ await loginLocalAccount(u,p); if(remember) await rememberSession(); enterApp(); }
+      try{ await loginLocalAccount(u,p); isAdminUser = false; if(remember) await rememberSession(); enterApp(); }
       catch(e2){ showAuthError(e2.message); }
     } else {
       showAuthError(e.message);
@@ -1112,7 +1145,7 @@ async function handleLogin(){
 }
 
 async function handleLogout(){
-  currentUser = null; data = null; authToken = null; usingBackendAccount = false;
+  currentUser = null; data = null; authToken = null; usingBackendAccount = false; isAdminUser = false;
   await forgetSession();
   document.getElementById('app').style.display='none';
   document.getElementById('auth').style.display='flex';
@@ -1150,6 +1183,7 @@ function enterApp(){
   document.getElementById('app').style.display='block';
   document.getElementById('sbUsername').textContent = currentUser;
   document.getElementById('sbUsernameMobile').textContent = currentUser;
+  document.querySelectorAll('.nav-admin').forEach(el => el.style.display = isAdminUser ? '' : 'none');
   // ensure structural defaults for older saved data
   if(!data.planner) data.planner = emptyData().planner;
   if(!data.stats) data.stats = emptyData().stats;
@@ -1181,6 +1215,7 @@ function goPage(name){
   if(name==='diet') renderDietPage();
   if(name==='sports') renderSportsPage();
   if(name==='ranked') renderRankedPage();
+  if(name==='admin') renderAdminPage();
 }
 
 function openDrawer(){
@@ -1846,6 +1881,96 @@ async function loadRankList(){
 }
 
 /* ============================================================
+   ADMIN PAGE
+   ============================================================ */
+async function renderAdminPage(){
+  const box = document.getElementById('adminContent');
+
+  if(!usingBackendAccount || !isAdminUser){
+    // Defense in depth: the nav button is already hidden for non-admins, and
+    // the server rejects the request regardless, but show something sane if
+    // this page is somehow reached directly.
+    box.innerHTML = `<div class="card"><p class="empty">Admin is only available to the site's admin account on the shared, self-hosted version of Setpoint.</p></div>`;
+    return;
+  }
+
+  box.innerHTML = `<div class="card"><p class="ai-thinking">Loading overview…</p></div>`;
+  let overview;
+  try{
+    overview = await apiAdminOverview();
+  }catch(e){
+    box.innerHTML = `<div class="card"><p class="ai-error">Couldn't load the admin overview right now.</p></div>`;
+    return;
+  }
+
+  const uptime = formatUptime(overview.uptimeSeconds);
+  box.innerHTML = `
+    <div class="grid grid-3" style="margin-bottom:18px;">
+      <div class="card"><h3>Total accounts</h3><p class="stat-big">${overview.totalUsers}</p></div>
+      <div class="card"><h3>PRs logged</h3><p class="stat-big">${overview.totalPRs}</p></div>
+      <div class="card"><h3>Bodyweight entries</h3><p class="stat-big">${overview.totalBodyweight}</p></div>
+    </div>
+    <div class="grid grid-3" style="margin-bottom:18px;">
+      <div class="card"><h3>Diet plans generated</h3><p class="stat-big small">${overview.usersWithDietPlan}</p></div>
+      <div class="card"><h3>Food logged today</h3><p class="stat-big small">${overview.totalFoodToday}</p></div>
+      <div class="card"><h3>Server uptime</h3><p class="stat-big small">${uptime}</p></div>
+    </div>
+    <div class="card">
+      <h3>Accounts</h3>
+      <p class="cal-hint" style="margin-bottom:12px;">Newest first. Deleting an account removes its login and all of its data immediately, that can't be undone.</p>
+      <div class="table-scroll">
+      <table>
+        <thead><tr><th>Username</th><th>Joined</th><th>PRs</th><th>Bodyweight</th><th>Sport</th><th></th></tr></thead>
+        <tbody>
+          ${overview.users.map(u => `
+            <tr>
+              <td>${escapeHtml(u.username)}${u.isAdmin?' <span class="ai-badge" style="margin-left:4px;">Admin</span>':''}</td>
+              <td>${u.createdAt ? new Date(u.createdAt).toLocaleDateString() : '—'}</td>
+              <td>${u.prCount}</td>
+              <td>${u.bwCount}</td>
+              <td>${u.sport ? escapeHtml(u.sport) : '—'}</td>
+              <td style="white-space:nowrap;">
+                <button class="del-row" title="Reset password" onclick="resetPasswordAdmin('${escapeAttr(u.key)}','${escapeAttr(u.username)}')">🔑</button>
+                ${u.isAdmin ? '' : `<button class="del-row" title="Delete account" onclick="deleteUserAdmin('${escapeAttr(u.key)}','${escapeAttr(u.username)}')">✕</button>`}
+              </td>
+            </tr>`).join('')}
+        </tbody>
+      </table>
+      </div>
+    </div>`;
+}
+
+function formatUptime(seconds){
+  const d = Math.floor(seconds/86400), h = Math.floor((seconds%86400)/3600), m = Math.floor((seconds%3600)/60);
+  if(d > 0) return `${d}d ${h}h`;
+  if(h > 0) return `${h}h ${m}m`;
+  return `${m}m`;
+}
+
+async function deleteUserAdmin(key, username){
+  const ok = confirm(`Permanently delete ${username}'s account and all their data? This can't be undone.`);
+  if(!ok) return;
+  try{
+    await apiAdminDeleteUser(key);
+    renderAdminPage();
+  }catch(e){
+    alert("Couldn't delete that account right now.");
+  }
+}
+
+async function resetPasswordAdmin(key, username){
+  const newPassword = prompt(`Set a new password for ${username} (at least 4 characters):`);
+  if(newPassword === null) return;
+  if(newPassword.trim().length < 4){ alert('Password must be at least 4 characters.'); return; }
+  try{
+    await apiAdminResetPassword(key, newPassword.trim());
+    alert(`Password updated for ${username}.`);
+  }catch(e){
+    alert("Couldn't update that password right now.");
+  }
+}
+
+/* ============================================================
    UTIL
    ============================================================ */
 function escapeHtml(s){ return String(s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
@@ -1892,10 +2017,11 @@ async function tryAutoLogin(){
     usingBackendAccount = true;
     try{
       data = await apiGetData();
+      await refreshAdminStatus();
       enterApp();
       return true;
     }catch(e){
-      authToken = null; currentUser = null; usingBackendAccount = false;
+      authToken = null; currentUser = null; usingBackendAccount = false; isAdminUser = false;
       await forgetSession();
       return false;
     }
@@ -1904,6 +2030,7 @@ async function tryAutoLogin(){
   if(sess.mode === 'native'){
     currentUser = sess.username;
     usingBackendAccount = false;
+    isAdminUser = false;
     try{
       data = await loadUserData(currentUser);
       enterApp();
