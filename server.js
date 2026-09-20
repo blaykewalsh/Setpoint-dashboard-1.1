@@ -8,6 +8,8 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 const JWT_SECRET = process.env.JWT_SECRET;
 const CALORIENINJAS_API_KEY = process.env.CALORIENINJAS_API_KEY;
+const ADMIN_USERNAME = process.env.ADMIN_USERNAME || '';
+const SERVER_STARTED_AT = Date.now();
 
 // ---------------------------------------------------------------------------
 // Tiny file-based "database". This is a personal/small-group project, so a
@@ -54,6 +56,17 @@ function requireAuth(req, res, next) {
   }
 }
 
+// Whoever's username matches ADMIN_USERNAME (set in Coolify's environment
+// variables) is the admin, decided server-side and enforced on every admin
+// route, never just by hiding a button on the frontend.
+function isAdminKey(key) {
+  return !!ADMIN_USERNAME && key === safeKey(ADMIN_USERNAME);
+}
+function requireAdmin(req, res, next) {
+  if (!isAdminKey(req.userKey)) return res.status(403).json({ error: 'Not authorized.' });
+  next();
+}
+
 app.post('/api/auth/signup', (req, res) => {
   if (!JWT_SECRET) return res.status(500).json({ error: 'Server is missing JWT_SECRET. Set it in your Coolify environment variables and redeploy.' });
 
@@ -67,7 +80,7 @@ app.post('/api/auth/signup', (req, res) => {
   const key = safeKey(username);
   if (users[key]) return res.status(409).json({ error: 'That username is already taken.' });
 
-  users[key] = { username, passwordHash: bcrypt.hashSync(password, 10), consentedAt: new Date().toISOString() };
+  users[key] = { username, passwordHash: bcrypt.hashSync(password, 10), consentedAt: new Date().toISOString(), createdAt: new Date().toISOString() };
   writeJSON(USERS_FILE, users);
   writeJSON(userDataFile(key), {});
 
@@ -91,6 +104,13 @@ app.post('/api/auth/login', (req, res) => {
 
   const token = jwt.sign({ sub: key }, JWT_SECRET, { expiresIn: '30d' });
   res.json({ token, username: user.username });
+});
+
+app.get('/api/me', requireAuth, (req, res) => {
+  const users = readJSON(USERS_FILE, {});
+  const user = users[req.userKey];
+  if (!user) return res.status(404).json({ error: 'Account not found.' });
+  res.json({ username: user.username, isAdmin: isAdminKey(req.userKey) });
 });
 
 // ---------------------------------------------------------------------------
@@ -229,6 +249,82 @@ app.get('/api/leaderboard', requireAuth, (req, res) => {
 
   rows.sort((a, b) => b.best1RM - a.best1RM);
   res.json(rows);
+});
+
+// ---------------------------------------------------------------------------
+// Admin - only reachable by whichever account matches ADMIN_USERNAME. Gives
+// a read-only overview of usage plus the ability to delete any account or
+// reset its password (e.g. if someone's locked out and asks for help).
+// ---------------------------------------------------------------------------
+app.get('/api/admin/overview', requireAuth, requireAdmin, (req, res) => {
+  const users = readJSON(USERS_FILE, {});
+  const rows = [];
+  let totalPRs = 0, totalBodyweight = 0, totalFoodToday = 0, usersWithDietPlan = 0;
+
+  for (const key of Object.keys(users)) {
+    const u = users[key];
+    const d = readJSON(userDataFile(key), {});
+    const prCount = ((d.stats && d.stats.prs) || []).length;
+    const bwCount = ((d.stats && d.stats.bodyweight) || []).length;
+    const hasDietPlan = !!(d.diet && d.diet.plan);
+    const foodToday = ((d.diet && d.diet.dailyLog && d.diet.dailyLog.entries) || []).length;
+
+    totalPRs += prCount;
+    totalBodyweight += bwCount;
+    totalFoodToday += foodToday;
+    if (hasDietPlan) usersWithDietPlan++;
+
+    rows.push({
+      key,
+      username: u.username,
+      createdAt: u.createdAt || u.consentedAt || null,
+      prCount,
+      bwCount,
+      hasDietPlan,
+      sport: (d.sports && d.sports.selected) || null,
+      isAdmin: isAdminKey(key)
+    });
+  }
+
+  rows.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+
+  res.json({
+    totalUsers: rows.length,
+    totalPRs,
+    totalBodyweight,
+    totalFoodToday,
+    usersWithDietPlan,
+    uptimeSeconds: Math.floor((Date.now() - SERVER_STARTED_AT) / 1000),
+    users: rows
+  });
+});
+
+// Same permanent deletion as the self-service one, just usable on any account.
+app.delete('/api/admin/users/:key', requireAuth, requireAdmin, (req, res) => {
+  const key = req.params.key;
+  const users = readJSON(USERS_FILE, {});
+  if (!users[key]) return res.status(404).json({ error: 'Account not found.' });
+
+  delete users[key];
+  writeJSON(USERS_FILE, users);
+
+  const file = userDataFile(key);
+  if (fs.existsSync(file)) fs.unlinkSync(file);
+
+  res.json({ ok: true });
+});
+
+app.put('/api/admin/users/:key/password', requireAuth, requireAdmin, (req, res) => {
+  const key = req.params.key;
+  const users = readJSON(USERS_FILE, {});
+  if (!users[key]) return res.status(404).json({ error: 'Account not found.' });
+
+  const newPassword = (req.body && req.body.newPassword || '').toString().trim();
+  if (newPassword.length < 4) return res.status(400).json({ error: 'New password must be at least 4 characters.' });
+
+  users[key].passwordHash = bcrypt.hashSync(newPassword, 10);
+  writeJSON(USERS_FILE, users);
+  res.json({ ok: true });
 });
 
 // If a request hits /api/* but matches nothing above, respond with JSON

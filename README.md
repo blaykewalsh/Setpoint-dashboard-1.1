@@ -42,6 +42,8 @@ access there instead of any of this.
 3. Under **Environment Variables**, add:
    - `JWT_SECRET` = the random string from above (mark as secret)
    - `CALORIENINJAS_API_KEY` = your key from calorieninjas.com
+   - `ADMIN_USERNAME` = the exact username you'll sign up with as the admin
+     (see "Admin tab" below)
 4. **Add a persistent volume** mounted at `/app/data`. This is what keeps
    accounts and logged data across redeploys, without it, every deploy
    wipes all accounts. In Coolify this is usually under the app's
@@ -52,6 +54,13 @@ access there instead of any of this.
 
 ## A couple of things worth knowing
 
+- **Admin tab.** Set `ADMIN_USERNAME` to whichever username you'll sign up
+  with, then create (or already have) an account with that exact username.
+  Only that account sees the Admin tab, showing total accounts, PRs logged,
+  bodyweight entries, and a full account list with sign-up dates, plus the
+  ability to delete any account or reset its password. This is enforced on
+  the server, not just hidden in the UI, so nobody else can reach it even by
+  guessing URLs. If `ADMIN_USERNAME` is unset, nobody gets admin access.
 - **The Privacy Policy & Terms text is a reasonable starting point, not a
   legal review.** It covers what data is collected, the third parties
   involved (CalorieNinjas, and Anthropic when used inside Claude), account
