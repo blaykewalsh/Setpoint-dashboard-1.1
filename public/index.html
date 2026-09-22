@@ -847,6 +847,24 @@ const SPORTS = {
     {name:'Group ride paceline practice', focus:['Skill','Endurance'], desc:"Riding in a tight line with training partners, take short turns at the front (20-30 seconds) pulling at a steady hard effort, then peel off and slot into the back of the line to recover in the draft before your next turn. Continue for 20-30 minutes."},
     {name:'Cornering drill', focus:['Technique','Skill'], desc:"In an empty car park or closed road, set up a wide, sweeping corner with cones. Practice approaching wide, cutting the apex, and exiting wide, shifting your weight onto the outside pedal and looking through the turn rather than at your front wheel. 10 reps each direction."},
     {name:'Long steady endurance ride', focus:['Endurance'], desc:"Ride at a conversational, aerobic pace, easy enough to talk in full sentences throughout, for a distance noticeably longer than your typical ride. The goal is time in the saddle building your aerobic base, not speed."}
+  ],
+  Rugby: [
+    {name:'Tackle bag drills', focus:['Technique','Power'], desc:"With a tackle bag held by a partner or freestanding, approach from a few steps back, drive through with your shoulder low and your head positioned to the side, wrapping your arms around and driving your legs through for 2-3 seconds after contact. 8 reps, alternating shoulders."},
+    {name:'Ball-in-two-hands passing drill', focus:['Skill'], desc:"Standing a few meters from a partner, pass the ball using a flat, spinning pass off both hands, stepping into the pass rather than just using your arms. 4 sets of 15 passes, then switch to passing off the move at jogging pace."},
+    {name:'Ladder footwork drill', focus:['Agility','Footwork'], desc:"Lay an agility ladder flat. Run through using quick, alternating steps (one foot per square), keeping your knees up and eyes forward rather than looking down at your feet. 4 passes, resting 20 seconds between."},
+    {name:'Ruck clear-out technique', focus:['Technique','Power'], desc:"With a partner or bag positioned as the 'ruck', approach low and bind on with both arms, driving forward through your hips and legs to clear the bag past an imaginary tackle point. 6 reps, focusing on staying low and square."},
+    {name:'Shuttle sprint conditioning', focus:['Endurance','Speed'], desc:"Mark out 10m and 20m lines. Sprint to the 10m line, touch it, sprint back to start, then sprint to the 20m line and back, mimicking the repeated short bursts of a match. 6-8 rounds with 30 seconds rest between."},
+    {name:'Reactive evasion drill', focus:['Agility','Reaction time'], desc:"A partner holds two pads and calls or points left or right as you approach at jogging pace; plant your outside foot and step sharply away from the pad shown, accelerating for 5 meters. 8 reps, alternating directions."},
+    {name:'Lineout jump and lift', focus:['Power','Skill'], desc:"With one or two lifters, practice the timed jump and lift sequence: the jumper loads on bent knees and jumps on a call, while the lifters drive up and support under the thighs. 6 reps, focusing on timing rather than height at first."}
+  ],
+  MMA: [
+    {name:'Shadow fighting rounds', focus:['Technique','Footwork'], desc:"With no partner or bag, move around an open space throwing combinations of strikes and imagining takedown entries and defensive reactions, keeping your hands up and feet moving throughout. 5 rounds of 3 minutes, 1 minute rest between."},
+    {name:'Heavy bag combinations', focus:['Power','Endurance'], desc:"Work the bag in timed rounds, mixing strikes with a shot for a takedown entry (level change and drive) every third or fourth combination, to build the habit of chaining striking into grappling. 5-6 rounds of 3 minutes."},
+    {name:'Sprawl drill', focus:['Reaction time','Technique'], desc:"Starting standing, have a partner call 'shot' at random moments; immediately sprawl your hips back and drive your weight down onto their shoulders, then reset to standing. 4 sets of 8 reps."},
+    {name:'Takedown entries on a bag', focus:['Skill','Technique'], desc:"Using a heavy bag or a compliant partner, practice level-changing and driving through for a double-leg takedown entry, keeping your back straight and head up through the shot. 5 sets of 6 reps each side."},
+    {name:'Positional sparring (guard passing)', focus:['Skill','Technique'], desc:"Starting from inside a partner's guard on the ground, work only on passing to a dominant position for a set time, resetting to guard whenever a pass succeeds or you're swept. 5 rounds of 3 minutes, light intensity."},
+    {name:'Clinch knee drill', focus:['Power','Technique'], desc:"In a collar tie or Muay Thai clinch with a partner or pads, practice driving knee strikes while controlling the head and posture, keeping your base wide and stable throughout. 4 rounds of 2 minutes."},
+    {name:'Rope skipping intervals', focus:['Footwork','Endurance'], desc:"Skip using varied footwork patterns (basic bounce, alternating feet, high knees) in timed rounds, mimicking the length and pacing of a real round to build fight-specific conditioning. 5 rounds of 3 minutes, 1 minute rest."}
   ]
 };
 
@@ -2074,6 +2092,11 @@ async function renderAdminPage(){
       </div>
     </div>
     <div class="card" style="margin-top:18px;">
+      <h3>Daily active users</h3>
+      <p class="cal-hint">Accounts that opened the site each day, last 14 days.</p>
+      <canvas id="dauChart" height="160"></canvas>
+    </div>
+    <div class="card" style="margin-top:18px;">
       <h3>Announcement</h3>
       <p class="cal-hint">Shown once to every account next time they open the site. Posting a new one replaces any active announcement and shows again to everyone, even people who already dismissed the last one.</p>
       <div class="form-row" style="align-items:flex-start;">
@@ -2094,6 +2117,21 @@ async function renderAdminPage(){
     </div>`;
 
   loadNutritionLogs();
+  loadDAUChart();
+}
+
+let dauChartInst = null;
+async function loadDAUChart(){
+  try{
+    const days = await apiRequest('/api/admin/dau', { headers:{ 'Authorization':'Bearer '+authToken } });
+    const ctx = document.getElementById('dauChart').getContext('2d');
+    if(dauChartInst) dauChartInst.destroy();
+    dauChartInst = new Chart(ctx, {
+      type: 'bar',
+      data: { labels: days.map(d=>d.date.slice(5)), datasets: [{ label:'Active users', data: days.map(d=>d.count), backgroundColor:'#c6ff3d' }] },
+      options: { plugins:{legend:{display:false}}, scales:{ x:{ticks:{color:'#90939c'}, grid:{display:false}}, y:{ticks:{color:'#90939c', stepSize:1}, grid:{color:'#2d3038'}, beginAtZero:true } } }
+    });
+  }catch(e){ /* not critical */ }
 }
 
 async function postAnnouncement(){

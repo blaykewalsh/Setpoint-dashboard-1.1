@@ -19,6 +19,8 @@ const SERVER_STARTED_AT = Date.now();
 const DATA_DIR = process.env.DATA_DIR || path.join(__dirname, 'data');
 const USERDATA_DIR = path.join(DATA_DIR, 'userdata');
 const USERS_FILE = path.join(DATA_DIR, 'users.json');
+const DAU_FILE = path.join(DATA_DIR, 'dau.json');
+if (!fs.existsSync(DAU_FILE)) fs.writeFileSync(DAU_FILE, '{}');
 const ANNOUNCEMENT_FILE = path.join(DATA_DIR, 'announcement.json');
 const NUTRITION_LOG_FILE = path.join(DATA_DIR, 'nutrition_logs.json');
 
@@ -47,12 +49,24 @@ app.use(express.static(path.join(__dirname, 'public')));
 // ---------------------------------------------------------------------------
 // Auth
 // ---------------------------------------------------------------------------
+function recordActiveUser(key){
+  const today = new Date().toISOString().slice(0,10);
+  const dau = readJSON(DAU_FILE, {});
+  if (!dau[today]) dau[today] = [];
+  if (!dau[today].includes(key)) dau[today].push(key);
+  // keep the file from growing forever
+  const dates = Object.keys(dau).sort();
+  if (dates.length > 60) delete dau[dates[0]];
+  writeJSON(DAU_FILE, dau);
+}
+
 function requireAuth(req, res, next) {
   const header = req.headers.authorization || '';
   const token = header.startsWith('Bearer ') ? header.slice(7) : null;
   if (!token) return res.status(401).json({ error: 'Not signed in.' });
   try {
     req.userKey = jwt.verify(token, JWT_SECRET).sub;
+    recordActiveUser(req.userKey);
     next();
   } catch (e) {
     res.status(401).json({ error: 'Your session expired, please log in again.' });
@@ -170,24 +184,24 @@ const FOOD_DB = [
   { keywords: ['protein bar'], label: 'Protein bar', cals: 210, p: 20, c: 22, f: 7 },
 
   // Carbs / grains
-  { keywords: ['toast', 'bread', 'slice of bread'], label: 'Bread (slice)', cals: 79, p: 2.7, c: 14, f: 1 },
+  { keywords: ['toast', 'bread', 'slice of bread'], label: 'Bread (slice, ~30g)', cals: 79, p: 2.7, c: 14, f: 1 },
   { keywords: ['bagel'], label: 'Bagel', cals: 245, p: 9, c: 48, f: 1.5 },
-  { keywords: ['rice'], label: 'Rice, cooked (1 cup)', cals: 205, p: 4.3, c: 45, f: 0.4 },
-  { keywords: ['pasta'], label: 'Pasta, cooked (1 cup)', cals: 221, p: 8, c: 43, f: 1.3 },
+  { keywords: ['rice'], label: 'Rice, cooked (1 cup, ~158g)', cals: 205, p: 4.3, c: 45, f: 0.4 },
+  { keywords: ['pasta'], label: 'Pasta, cooked (1 cup, ~140g)', cals: 221, p: 8, c: 43, f: 1.3 },
   { keywords: ['noodles'], label: 'Noodles, cooked (1 cup)', cals: 190, p: 7, c: 40, f: 1 },
-  { keywords: ['potato'], label: 'Potato, baked (medium)', cals: 161, p: 4.3, c: 37, f: 0.2 },
-  { keywords: ['sweet potato'], label: 'Sweet potato, baked (medium)', cals: 112, p: 2, c: 26, f: 0.1 },
+  { keywords: ['potato'], label: 'Potato, baked (medium, ~170g)', cals: 161, p: 4.3, c: 37, f: 0.2 },
+  { keywords: ['sweet potato'], label: 'Sweet potato, baked (medium, ~130g)', cals: 112, p: 2, c: 26, f: 0.1 },
   { keywords: ['chips', 'fries'], label: 'Chips/fries (portion)', cals: 365, p: 4, c: 48, f: 17 },
-  { keywords: ['oats', 'porridge'], label: 'Oats, dry (1/2 cup)', cals: 150, p: 5, c: 27, f: 2.5 },
-  { keywords: ['cereal'], label: 'Cereal (1 bowl)', cals: 150, p: 3, c: 32, f: 1.5 },
+  { keywords: ['oats', 'porridge'], label: 'Oats, dry (1/2 cup, ~40g)', cals: 150, p: 5, c: 27, f: 2.5 },
+  { keywords: ['cereal'], label: 'Cereal (1 bowl, ~40g)', cals: 150, p: 3, c: 32, f: 1.5 },
   { keywords: ['quinoa'], label: 'Quinoa, cooked (1 cup)', cals: 222, p: 8, c: 39, f: 3.6 },
   { keywords: ['tortilla', 'wrap'], label: 'Tortilla wrap', cals: 130, p: 3.5, c: 22, f: 3 },
   { keywords: ['crackers', 'rice cake'], label: 'Rice cakes (2)', cals: 70, p: 1.5, c: 15, f: 0.5 },
 
   // Dairy
-  { keywords: ['milk'], label: 'Milk (1 cup)', cals: 122, p: 8, c: 12, f: 5 },
+  { keywords: ['milk'], label: 'Milk (1 cup, ~245ml)', cals: 122, p: 8, c: 12, f: 5 },
   { keywords: ['cheese', 'cheddar'], label: 'Cheese (slice, ~28g)', cals: 113, p: 7, c: 0.4, f: 9 },
-  { keywords: ['yogurt', 'yoghurt'], label: 'Yogurt (1 cup)', cals: 150, p: 8.5, c: 17, f: 8 },
+  { keywords: ['yogurt', 'yoghurt'], label: 'Yogurt (1 cup, ~245g)', cals: 150, p: 8.5, c: 17, f: 8 },
   { keywords: ['greek yogurt', 'greek yoghurt'], label: 'Greek yogurt (170g pot)', cals: 100, p: 17, c: 6, f: 0.7 },
   { keywords: ['cottage cheese'], label: 'Cottage cheese (100g)', cals: 98, p: 11, c: 3.4, f: 4.3 },
   { keywords: ['butter'], label: 'Butter (1 tbsp)', cals: 102, p: 0.1, c: 0, f: 11.5 },
@@ -252,6 +266,25 @@ const FOOD_DB = [
 
 const NUMBER_WORDS = { a:1, an:1, one:1, two:2, three:3, four:4, five:5, six:6, seven:7, eight:8, nine:9, ten:10, couple:2, few:3 };
 
+// Pulls an explicit weight/volume out of what someone typed, e.g. "80g",
+// "1000g", "350ml", "1kg". Treats ml roughly as grams, fine for this level
+// of estimate.
+function extractGrams(segment){
+  const m = segment.match(/(\d+(\.\d+)?)\s*(kg|g|grams?|ml|millilitres?|l|litres?)\b/i);
+  if (!m) return null;
+  let val = parseFloat(m[1]);
+  const unit = m[3].toLowerCase();
+  if (unit === 'kg') val *= 1000;
+  if (unit === 'l' || unit.startsWith('litre')) val *= 1000;
+  return val;
+}
+// Pulls the gram/ml figure already baked into a FOOD_DB label, e.g.
+// "Chicken breast (100g)" -> 100, "Greek yogurt (170g pot)" -> 170.
+function baselineGrams(label){
+  const m = label.match(/(\d+(\.\d+)?)\s*(g|ml)\b/i);
+  return m ? parseFloat(m[1]) : null;
+}
+
 function matchFoodSegment(segment){
   let qty = 1;
   const qtyMatch = segment.match(/^(\d+(\.\d+)?|a|an|one|two|three|four|five|six|seven|eight|nine|ten|couple|few)\s+/);
@@ -270,9 +303,25 @@ function matchFoodSegment(segment){
     }
   }
   if (!best) return null;
+
+  // If they gave an explicit weight (e.g. "80g of cereal") and this food's
+  // baseline serving has a known gram figure, scale by weight instead of
+  // guessing a serving count, this is what was returning "1 bowl" for any
+  // amount of cereal regardless of whether someone typed 80g or 1000g.
+  let multiplier = qty;
+  let labelPrefix = qty > 1 ? qty + 'x ' : '';
+  const statedGrams = extractGrams(segment);
+  if (statedGrams) {
+    const base = baselineGrams(best.label);
+    if (base) {
+      multiplier = statedGrams / base;
+      labelPrefix = Math.round(statedGrams) + 'g ';
+    }
+  }
+
   return {
-    label: (qty > 1 ? qty + 'x ' : '') + best.label,
-    cals: best.cals * qty, p: best.p * qty, c: best.c * qty, f: best.f * qty
+    label: labelPrefix + best.label,
+    cals: best.cals * multiplier, p: best.p * multiplier, c: best.c * multiplier, f: best.f * multiplier
   };
 }
 
@@ -525,6 +574,18 @@ app.post('/api/admin/announcement', requireAuth, requireAdmin, (req, res) => {
 app.delete('/api/admin/announcement', requireAuth, requireAdmin, (req, res) => {
   writeJSON(ANNOUNCEMENT_FILE, null);
   res.json({ ok: true });
+});
+
+app.get('/api/admin/dau', requireAuth, requireAdmin, (req, res) => {
+  const dau = readJSON(DAU_FILE, {});
+  const days = [];
+  for (let i = 13; i >= 0; i--) {
+    const d = new Date();
+    d.setDate(d.getDate() - i);
+    const key = d.toISOString().slice(0,10);
+    days.push({ date: key, count: (dau[key] || []).length });
+  }
+  res.json(days);
 });
 
 app.get('/api/admin/nutrition-logs', requireAuth, requireAdmin, (req, res) => {
