@@ -268,6 +268,9 @@
   .exercise-suggestions button:hover{background:var(--panel);}
   .exercise-suggestions .no-match{padding:8px 12px;color:var(--muted);font-size:12px;}
   .btn-add{padding:9px 16px;border-radius:8px;border:none;background:var(--accent);color:#101207;font-weight:700;font-size:13px;}
+  .workout-completed-btn{display:flex;flex-direction:column;align-items:center;gap:2px;padding:10px 16px;background:rgba(198,255,61,.12)!important;color:var(--accent)!important;border:1px solid rgba(198,255,61,.35);}
+  .workout-completed-btn:hover{background:rgba(198,255,61,.18)!important;}
+  .workout-completed-btn .redo-label{font-size:11px;font-weight:600;opacity:.75;text-transform:none;}
   .btn-add:hover{background:#d4ff66;}
   canvas{max-width:100%;}
   table{width:100%;border-collapse:collapse;font-size:13.5px;}
@@ -599,6 +602,11 @@
           <select id="prExerciseFilter" onchange="renderPRChart()" style="padding:8px 10px;border-radius:8px;border:1px solid var(--border);background:var(--panel-2);color:var(--text);font-size:13px;margin-bottom:12px;width:100%;"></select>
           <canvas id="prChart" height="160"></canvas>
         </div>
+      </div>
+      <div class="card" style="margin-bottom:18px;">
+        <h3>Workout consistency</h3>
+        <p class="cal-hint">Days you completed your planned workout, last 14 days.</p>
+        <canvas id="workoutChart" height="140"></canvas>
       </div>
       <div class="card">
         <h3>Log a PR</h3>
@@ -995,7 +1003,7 @@ let selectedDietDay = 0;
 function emptyData(){
   return {
     planner: { split:'Push/Pull/Legs', goal:'Hypertrophy', dayLabels: {...SPLIT_TEMPLATES['Push/Pull/Legs']}, exercises: {Monday:[],Tuesday:[],Wednesday:[],Thursday:[],Friday:[],Saturday:[],Sunday:[]} },
-    stats: { bodyweight: [], prs: [] },
+    stats: { bodyweight: [], prs: [], workoutsCompleted: [] },
     diet: { profile:null, plan:null, dailyLog:null, goalHistory:[] },
     sports: { selected:'Basketball' },
     workoutSession: null
@@ -1336,6 +1344,7 @@ function enterApp(){
   if(!data.diet) data.diet = emptyData().diet;
   if(data.diet.dailyLog === undefined) data.diet.dailyLog = null;
   if(data.workoutSession === undefined) data.workoutSession = null;
+  if(!data.stats.workoutsCompleted) data.stats.workoutsCompleted = [];
   if(!data.diet.goalHistory) data.diet.goalHistory = [];
   ensureDietLogFresh();
   if(!data.sports) data.sports = emptyData().sports;
@@ -1413,7 +1422,14 @@ function renderHomePage(){
   if(exs.length){
     html += '<ul class="plain">' + exs.map(e=>`<li><span class="row-title">${escapeHtml(e.name)}</span><span class="row-sub">${e.sets}×${e.reps}</span></li>`).join('') + '</ul>';
     const inProgress = data.workoutSession && data.workoutSession.date === todayISO() && data.workoutSession.queue && data.workoutSession.queue.length;
-    html += `<button class="btn-add" style="width:100%;margin-top:10px;" onclick="beginWorkout()">${inProgress ? 'Continue Workout' : 'Begin Workout'}</button>`;
+    const completedToday = data.stats.workoutsCompleted && data.stats.workoutsCompleted.includes(todayISO());
+    if(inProgress){
+      html += `<button class="btn-add" style="width:100%;margin-top:10px;" onclick="beginWorkout()">Continue Workout</button>`;
+    } else if(completedToday){
+      html += `<button class="btn-add workout-completed-btn" style="width:100%;margin-top:10px;" onclick="beginWorkout()">Workout completed<span class="redo-label">Redo workout</span></button>`;
+    } else {
+      html += `<button class="btn-add" style="width:100%;margin-top:10px;" onclick="beginWorkout()">Begin Workout</button>`;
+    }
   } else {
     html += `<p class="empty">Nothing logged for today yet. Head to the Planner tab to add exercises.</p>`;
   }
@@ -1528,6 +1544,9 @@ function completeCurrentExercise(){
     workoutDoneCount++;
     if(!workoutQueue.length){
       data.workoutSession = null; // finished, clear so the button goes back to "Begin Workout"
+      const today = todayISO();
+      if(!data.stats.workoutsCompleted) data.stats.workoutsCompleted = [];
+      if(!data.stats.workoutsCompleted.includes(today)) data.stats.workoutsCompleted.push(today);
       saveUserData();
     } else {
       persistWorkoutSession();
@@ -1693,18 +1712,38 @@ function removeExercise(day, idx){
 let bwChartInst=null, prChartInst=null;
 
 function renderStatsPage(){
-  document.getElementById('bwDate').valueAsDate = new Date();
-  document.getElementById('prDate').valueAsDate = new Date();
+  document.getElementById('bwDate').value = todayISO();
+  document.getElementById('prDate').value = todayISO();
   renderBWChart();
   renderPRTable();
   renderExerciseFilter();
   renderPRChart();
   renderGoalHistory();
+  renderWorkoutChart();
+}
+
+let workoutChartInst = null;
+function renderWorkoutChart(){
+  const completed = data.stats.workoutsCompleted || [];
+  const days = [];
+  for(let i=13; i>=0; i--){
+    const d = new Date();
+    d.setDate(d.getDate()-i);
+    const key = localDateStr(d);
+    days.push({ label: key.slice(5), done: completed.includes(key) ? 1 : 0 });
+  }
+  const ctx = document.getElementById('workoutChart').getContext('2d');
+  if(workoutChartInst) workoutChartInst.destroy();
+  workoutChartInst = new Chart(ctx, {
+    type: 'bar',
+    data: { labels: days.map(d=>d.label), datasets: [{ label:'Completed', data: days.map(d=>d.done), backgroundColor:'#c6ff3d' }] },
+    options: { plugins:{legend:{display:false}}, scales:{ x:{ticks:{color:'#90939c'}, grid:{display:false}}, y:{ticks:{color:'#90939c', stepSize:1}, grid:{color:'#2d3038'}, min:0, max:1 } } }
+  });
 }
 
 function addBodyweight(){
   const w = parseFloat(document.getElementById('bwInput').value);
-  const d = document.getElementById('bwDate').value || new Date().toISOString().slice(0,10);
+  const d = document.getElementById('bwDate').value || todayISO();
   if(!w) return;
   data.stats.bodyweight.push({weight:w, date:d});
   saveUserData();
@@ -1727,7 +1766,7 @@ function addPR(){
   const raw = document.getElementById('prExercise').value.trim();
   const weight = parseFloat(document.getElementById('prWeight').value);
   const reps = parseInt(document.getElementById('prReps').value);
-  const dt = document.getElementById('prDate').value || new Date().toISOString().slice(0,10);
+  const dt = document.getElementById('prDate').value || todayISO();
   if(!raw || !weight || !reps) return;
   const exercise = EXERCISE_LIST.find(e => e.toLowerCase() === raw.toLowerCase());
   if(!exercise){
@@ -1892,7 +1931,19 @@ function renderDietDay(){
 }
 
 /* -------- AI Nutritionist: daily calorie counter -------- */
-function todayISO(){ return new Date().toISOString().slice(0,10); }
+// Deliberately not toISOString(), which is UTC and would roll the "day"
+// over at UTC midnight, an hour early for any UK user during British
+// Summer Time (and more skewed for other timezones), causing workout
+// completions, diet resets, chart labels, and session resume to disagree
+// with what day it actually is locally. Every "what date is it today"
+// check in the app should go through one of these two, not toISOString().
+function localDateStr(d){
+  const y = d.getFullYear();
+  const m = String(d.getMonth()+1).padStart(2,'0');
+  const day = String(d.getDate()).padStart(2,'0');
+  return `${y}-${m}-${day}`;
+}
+function todayISO(){ return localDateStr(new Date()); }
 
 // Rolls the previous day into goal history (if a target existed) and starts a fresh log for today.
 function ensureDietLogFresh(){
@@ -2154,7 +2205,7 @@ async function loadRankList(){
           <div class="row-sub">from ${row.sourceWeight}kg × ${row.sourceReps}</div>
         </div>
         <div class="rank-value">${row.best1RM}<span class="unit">kg est. 1RM</span></div>
-        ${isAdminUser ? `<button class="del-row" title="Remove this PR" onclick="deleteRankedPR('${escapeAttr(row.key)}','${escapeAttr(selectedRankExercise)}',${row.sourceWeight},${row.sourceReps},'${escapeAttr(row.sourceDate||'')}')">✕</button>` : ''}
+        ${isAdminUser ? `<button class="del-row" title="Remove this PR" data-key="${escapeAttr(row.key)}" data-exercise="${escapeAttr(selectedRankExercise)}" data-weight="${row.sourceWeight}" data-reps="${row.sourceReps}" data-date="${escapeAttr(row.sourceDate||'')}" onclick="deleteRankedPR(this)">✕</button>` : ''}
       </div>`;
     }).join('');
   }catch(e){
@@ -2162,14 +2213,15 @@ async function loadRankList(){
   }
 }
 
-async function deleteRankedPR(key, exercise, weight, reps, date){
+async function deleteRankedPR(btn){
+  const { key, exercise, weight, reps, date } = btn.dataset;
   const ok = confirm('Remove this PR from the leaderboard? This deletes it from that account\'s Stats tab too, permanently.');
   if(!ok) return;
   try{
     await apiRequest('/api/admin/pr', {
       method:'DELETE',
       headers:{'Content-Type':'application/json','Authorization':'Bearer '+authToken},
-      body: JSON.stringify({ key, exercise, weight, reps, date })
+      body: JSON.stringify({ key, exercise, weight: Number(weight), reps: Number(reps), date })
     });
     loadRankList();
   }catch(e){
@@ -2227,8 +2279,8 @@ async function renderAdminPage(){
               <td>${u.bwCount}</td>
               <td>${u.sport ? escapeHtml(u.sport) : '—'}</td>
               <td style="white-space:nowrap;">
-                <button class="del-row" title="Reset password" onclick="resetPasswordAdmin('${escapeAttr(u.key)}','${escapeAttr(u.username)}')">🔑</button>
-                ${u.isAdmin ? '' : `<button class="del-row" title="Delete account" onclick="deleteUserAdmin('${escapeAttr(u.key)}','${escapeAttr(u.username)}')">✕</button>`}
+                <button class="del-row" title="Reset password" data-key="${escapeAttr(u.key)}" data-username="${escapeAttr(u.username)}" onclick="resetPasswordAdmin(this)">🔑</button>
+                ${u.isAdmin ? '' : `<button class="del-row" title="Delete account" data-key="${escapeAttr(u.key)}" data-username="${escapeAttr(u.username)}" onclick="deleteUserAdmin(this)">✕</button>`}
               </td>
             </tr>`).join('')}
         </tbody>
@@ -2322,7 +2374,8 @@ function formatUptime(seconds){
   return `${m}m`;
 }
 
-async function deleteUserAdmin(key, username){
+async function deleteUserAdmin(btn){
+  const { key, username } = btn.dataset;
   const ok = confirm(`Permanently delete ${username}'s account and all their data? This can't be undone.`);
   if(!ok) return;
   try{
@@ -2333,7 +2386,8 @@ async function deleteUserAdmin(key, username){
   }
 }
 
-async function resetPasswordAdmin(key, username){
+async function resetPasswordAdmin(btn){
+  const { key, username } = btn.dataset;
   const newPassword = prompt(`Set a new password for ${username} (at least 4 characters):`);
   if(newPassword === null) return;
   if(newPassword.trim().length < 4){ alert('Password must be at least 4 characters.'); return; }
