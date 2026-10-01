@@ -21,6 +21,8 @@ const USERDATA_DIR = path.join(DATA_DIR, 'userdata');
 const USERS_FILE = path.join(DATA_DIR, 'users.json');
 const DAU_FILE = path.join(DATA_DIR, 'dau.json');
 if (!fs.existsSync(DAU_FILE)) fs.writeFileSync(DAU_FILE, '{}');
+const PRODUCTS_FILE = path.join(DATA_DIR, 'products.json');
+if (!fs.existsSync(PRODUCTS_FILE)) fs.writeFileSync(PRODUCTS_FILE, '[]');
 const ANNOUNCEMENT_FILE = path.join(DATA_DIR, 'announcement.json');
 const NUTRITION_LOG_FILE = path.join(DATA_DIR, 'nutrition_logs.json');
 
@@ -631,6 +633,59 @@ app.get('/api/admin/dau', requireAuth, requireAdmin, (req, res) => {
     days.push({ date: key, count: (dau[key] || []).length });
   }
   res.json(days);
+});
+
+// ---------------------------------------------------------------------------
+// Shop - admin-managed product tiles (brand promotions). Anyone signed in
+// can view the list; only the admin can add, edit, or remove products.
+// ---------------------------------------------------------------------------
+app.get('/api/shop/products', requireAuth, (req, res) => {
+  res.json(readJSON(PRODUCTS_FILE, []));
+});
+
+app.post('/api/admin/shop/products', requireAuth, requireAdmin, (req, res) => {
+  const title = (req.body && req.body.title || '').toString().trim();
+  const link = (req.body && req.body.link || '').toString().trim();
+  const imageUrl = (req.body && req.body.imageUrl || '').toString().trim();
+  const description = (req.body && req.body.description || '').toString().trim();
+  if (!title || !link) return res.status(400).json({ error: 'Title and link are required.' });
+
+  const products = readJSON(PRODUCTS_FILE, []);
+  const product = {
+    id: Date.now().toString(36) + Math.random().toString(36).slice(2, 7),
+    title, link, imageUrl, description,
+    createdAt: new Date().toISOString()
+  };
+  products.push(product);
+  writeJSON(PRODUCTS_FILE, products);
+  res.json(product);
+});
+
+app.put('/api/admin/shop/products/:id', requireAuth, requireAdmin, (req, res) => {
+  const products = readJSON(PRODUCTS_FILE, []);
+  const idx = products.findIndex(p => p.id === req.params.id);
+  if (idx === -1) return res.status(404).json({ error: 'Product not found.' });
+
+  const title = (req.body && req.body.title || '').toString().trim();
+  const link = (req.body && req.body.link || '').toString().trim();
+  if (!title || !link) return res.status(400).json({ error: 'Title and link are required.' });
+
+  products[idx] = {
+    ...products[idx],
+    title, link,
+    imageUrl: (req.body.imageUrl || '').toString().trim(),
+    description: (req.body.description || '').toString().trim()
+  };
+  writeJSON(PRODUCTS_FILE, products);
+  res.json(products[idx]);
+});
+
+app.delete('/api/admin/shop/products/:id', requireAuth, requireAdmin, (req, res) => {
+  const products = readJSON(PRODUCTS_FILE, []);
+  const next = products.filter(p => p.id !== req.params.id);
+  if (next.length === products.length) return res.status(404).json({ error: 'Product not found.' });
+  writeJSON(PRODUCTS_FILE, next);
+  res.json({ ok: true });
 });
 
 app.get('/api/admin/nutrition-logs', requireAuth, requireAdmin, (req, res) => {

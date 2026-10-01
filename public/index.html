@@ -36,6 +36,24 @@
   button{font-family:inherit;cursor:pointer;}
   input,select,textarea{font-family:inherit;}
 
+  /* ---------- LANDING ---------- */
+  #landing{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:48px 24px;background:
+    radial-gradient(circle at 15% 20%, rgba(198,255,61,0.07), transparent 40%),
+    radial-gradient(circle at 85% 80%, rgba(255,84,104,0.07), transparent 40%), var(--bg);}
+  .landing-wrap{max-width:800px;width:100%;text-align:center;}
+  .landing-hero h1{font-size:44px;margin:10px 0 6px;}
+  .landing-tagline{color:var(--muted);font-size:16px;margin:0 0 30px;}
+  .landing-cta-row{display:flex;gap:18px;align-items:center;justify-content:center;flex-wrap:wrap;margin-bottom:52px;}
+  .landing-login-link{background:none;border:none;color:var(--muted);font-size:13px;text-decoration:underline;font-weight:600;}
+  .landing-login-link:hover{color:var(--text);}
+  .landing-features{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;text-align:left;}
+  .landing-feature{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);padding:20px;}
+  .landing-feature .lf-icon{font-size:22px;}
+  .landing-feature h3{font-size:15px;margin:10px 0 6px;font-family:'Inter';font-weight:700;}
+  .landing-feature p{font-size:12.5px;color:var(--muted);line-height:1.5;margin:0;}
+  @media(max-width:800px){.landing-features{grid-template-columns:repeat(2,1fr);}}
+  @media(max-width:480px){.landing-features{grid-template-columns:1fr;} .landing-hero h1{font-size:32px;} .landing-tagline{font-size:14px;}}
+
   /* ---------- AUTH ---------- */
   #auth{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;background:
     radial-gradient(circle at 15% 20%, rgba(198,255,61,0.07), transparent 40%),
@@ -389,12 +407,51 @@
   .rank-you-tag{font-size:10px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.05em;margin-left:8px;}
   .rank-value{font-family:'Bebas Neue';font-size:22px;flex-shrink:0;}
   .rank-value .unit{font-family:'Inter';font-size:11px;color:var(--muted);font-weight:600;margin-left:2px;}
+
+  /* Shop */
+  .shop-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px;}
+  .shop-tile{display:block;background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;text-decoration:none;color:var(--text);transition:border-color .15s ease,transform .15s ease;}
+  .shop-tile:hover{border-color:var(--accent);transform:translateY(-2px);}
+  .shop-tile-img-wrap{width:100%;aspect-ratio:16/10;background:var(--panel-2);overflow:hidden;}
+  .shop-tile-img-wrap img{width:100%;height:100%;object-fit:cover;display:block;}
+  .shop-tile-body{padding:14px 16px;}
+  .shop-tile-body h4{margin:0 0 9px;font-size:15px;line-height:1.3;}
+  .shop-desc-toggle{background:none;border:none;color:var(--accent);font-size:12px;font-weight:700;padding:0;display:flex;align-items:center;gap:4px;}
+  .shop-desc-toggle .chevron{display:inline-block;transition:transform .15s ease;font-size:10px;}
+  .shop-desc-toggle.open .chevron{transform:rotate(180deg);}
+  .shop-desc{margin:9px 0 0;font-size:12.5px;color:var(--muted);line-height:1.55;display:none;}
+  .shop-desc.open{display:block;}
+  .shop-admin-thumb{width:44px;height:44px;border-radius:8px;object-fit:cover;background:var(--panel-2);flex-shrink:0;}
+  .shop-admin-row{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border);}
+  .shop-admin-row:last-child{border-bottom:none;}
+  .shop-admin-row .sar-info{flex:1;min-width:0;}
+  .shop-admin-row .sar-info .row-title{display:block;}
+  .shop-admin-row .sar-info .row-sub{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 </style>
 </head>
 <body>
 
 <!-- ============ AUTH SCREEN ============ -->
-<div id="auth">
+<div id="landing">
+  <div class="landing-wrap">
+    <div class="landing-hero">
+      <div class="auth-brand" style="justify-content:center;"><div class="mark"></div><h1>SETPOINT</h1></div>
+      <p class="landing-tagline">Your training, diet, and stats, all in one dashboard.</p>
+      <div class="landing-cta-row">
+        <button class="btn btn-primary" style="width:auto;padding:13px 30px;" onclick="goToAuth(false)">Get Started</button>
+        <button class="landing-login-link" onclick="goToAuth(true)">I already have an account</button>
+      </div>
+    </div>
+    <div class="landing-features">
+      <div class="landing-feature"><span class="lf-icon">📅</span><h3>Planner</h3><p>Build your split, auto-generate exercises for your goal, and follow it week to week.</p></div>
+      <div class="landing-feature"><span class="lf-icon">📈</span><h3>Stats &amp; Ranked</h3><p>Log PRs and bodyweight, estimate your one-rep max, and see how you stack up against others.</p></div>
+      <div class="landing-feature"><span class="lf-icon">🍽️</span><h3>Dietary</h3><p>Get a calorie and macro target, a weekly meal plan with recipes, and an AI-powered food log.</p></div>
+      <div class="landing-feature"><span class="lf-icon">🏀</span><h3>Sports</h3><p>Pick your sport and get real drills, with setup and instructions, mapped to what they train.</p></div>
+    </div>
+    <button class="footer-legal-link" style="margin-top:28px;" onclick="openLegalModal()">Privacy Policy &amp; Terms</button>
+  </div>
+</div>
+<div id="auth" style="display:none;">
   <div class="auth-card">
     <div class="auth-brand"><div class="mark"></div><h1>SETPOINT</h1></div>
     <p class="auth-sub" id="authSub">Log in to your training dashboard.</p>
@@ -512,6 +569,7 @@
       <button class="nav-btn" data-page="diet" onclick="goPage('diet')">🍽️&nbsp; Dietary</button>
       <button class="nav-btn" data-page="sports" onclick="goPage('sports')">🏀&nbsp; Sports</button>
       <button class="nav-btn" data-page="ranked" onclick="goPage('ranked')">🏆&nbsp; Ranked</button>
+      <button class="nav-btn" data-page="shop" onclick="goPage('shop')">🛍️&nbsp; Shop</button>
       <button class="nav-btn nav-admin" data-page="admin" onclick="goPage('admin')" style="display:none;">🛠️&nbsp; Admin</button>
     </nav>
     <div class="sb-foot">
@@ -743,6 +801,12 @@
       <div id="rankedContent"></div>
     </section>
 
+    <!-- SHOP -->
+    <section class="page" id="page-shop">
+      <div class="page-head"><div><h1>Shop</h1><p>Gear and products picked out for the Setpoint community.</p></div></div>
+      <div id="shopContent"></div>
+    </section>
+
     <!-- ADMIN -->
     <section class="page" id="page-admin">
       <div class="page-head"><div><h1>Admin</h1><p>Usage overview and account management.</p></div></div>
@@ -763,6 +827,7 @@
   <button class="nav-btn" data-page="diet" onclick="goPage('diet');closeDrawer();">🍽️&nbsp; Dietary</button>
   <button class="nav-btn" data-page="sports" onclick="goPage('sports');closeDrawer();">🏀&nbsp; Sports</button>
   <button class="nav-btn" data-page="ranked" onclick="goPage('ranked');closeDrawer();">🏆&nbsp; Ranked</button>
+  <button class="nav-btn" data-page="shop" onclick="goPage('shop');closeDrawer();">🛍️&nbsp; Shop</button>
   <button class="nav-btn nav-admin" data-page="admin" onclick="goPage('admin');closeDrawer();" style="display:none;">🛠️&nbsp; Admin</button>
   <div class="sb-foot">
     <div class="sb-user">Signed in as<br><b id="sbUsernameMobile"></b></div>
@@ -1109,6 +1174,11 @@ function togglePw(id, btn){
   btn.setAttribute('aria-label', showing ? 'Show password' : 'Hide password');
 }
 
+function goToAuth(showLogin){
+  document.getElementById('landing').style.display = 'none';
+  document.getElementById('auth').style.display = 'flex';
+  toggleAuthMode(showLogin);
+}
 function toggleAuthMode(showLogin){
   document.getElementById('loginForm').style.display = showLogin ? 'block':'none';
   document.getElementById('signupForm').style.display = showLogin ? 'none':'block';
@@ -1333,6 +1403,7 @@ async function handleDeleteAccount(){
 
 function enterApp(){
   hideAuthError();
+  document.getElementById('landing').style.display='none';
   document.getElementById('auth').style.display='none';
   document.getElementById('app').style.display='block';
   document.getElementById('sbUsername').textContent = currentUser;
@@ -1386,6 +1457,7 @@ function goPage(name){
   if(name==='diet') renderDietPage();
   if(name==='sports') renderSportsPage();
   if(name==='ranked') renderRankedPage();
+  if(name==='shop') renderShopPage();
   if(name==='admin') renderAdminPage();
 }
 
@@ -2230,6 +2302,129 @@ async function deleteRankedPR(btn){
 }
 
 /* ============================================================
+   SHOP PAGE
+   ============================================================ */
+async function renderShopPage(){
+  const box = document.getElementById('shopContent');
+
+  if(!usingBackendAccount){
+    box.innerHTML = `<div class="card"><p class="empty">The Shop only works on the shared, self-hosted version of Setpoint (once it's live on Coolify), not inside Claude's preview.</p></div>`;
+    return;
+  }
+
+  box.innerHTML = `<div class="card"><p class="ai-thinking">Loading products…</p></div>`;
+  try{
+    const products = await apiRequest('/api/shop/products', { headers:{ 'Authorization':'Bearer '+authToken } });
+    if(!products.length){
+      box.innerHTML = `<div class="card"><p class="empty">No products listed yet, check back soon.</p></div>`;
+      return;
+    }
+    box.innerHTML = `<div class="shop-grid">${products.map(p => `
+      <a class="shop-tile" href="${escapeAttr(p.link)}" target="_blank" rel="noopener noreferrer sponsored">
+        ${p.imageUrl ? `<div class="shop-tile-img-wrap"><img src="${escapeAttr(p.imageUrl)}" alt="${escapeAttr(p.title)}" onerror="this.parentElement.style.display='none'"></div>` : ''}
+        <div class="shop-tile-body">
+          <h4>${escapeHtml(p.title)}</h4>
+          ${p.description ? `
+          <button type="button" class="shop-desc-toggle" onclick="event.preventDefault();event.stopPropagation();toggleShopDesc(this)">Details <span class="chevron">▾</span></button>
+          <p class="shop-desc">${escapeHtml(p.description)}</p>` : ''}
+        </div>
+      </a>`).join('')}</div>`;
+  }catch(e){
+    box.innerHTML = `<div class="card"><p class="ai-error">Couldn't load the shop right now.</p></div>`;
+  }
+}
+
+function toggleShopDesc(btn){
+  btn.classList.toggle('open');
+  btn.nextElementSibling.classList.toggle('open');
+}
+
+/* -------- Admin: Shop product management -------- */
+let editingProductId = null;
+let shopAdminCache = [];
+
+async function loadShopAdmin(){
+  const box = document.getElementById('shopAdminList');
+  try{
+    shopAdminCache = await apiRequest('/api/shop/products', { headers:{ 'Authorization':'Bearer '+authToken } });
+    if(!shopAdminCache.length){
+      box.innerHTML = `<p class="empty">No products yet, add one above.</p>`;
+      return;
+    }
+    box.innerHTML = shopAdminCache.map(p => `
+      <div class="shop-admin-row">
+        ${p.imageUrl ? `<img class="shop-admin-thumb" src="${escapeAttr(p.imageUrl)}" alt="" onerror="this.style.visibility='hidden'">` : '<div class="shop-admin-thumb"></div>'}
+        <div class="sar-info">
+          <span class="row-title">${escapeHtml(p.title)}</span>
+          <span class="row-sub">${escapeHtml(p.link)}</span>
+        </div>
+        <button class="del-row" title="Edit" data-id="${escapeAttr(p.id)}" onclick="editProductAdmin(this)">✎</button>
+        <button class="del-row" title="Delete" data-id="${escapeAttr(p.id)}" onclick="deleteProductAdmin(this)">✕</button>
+      </div>`).join('');
+  }catch(e){
+    box.innerHTML = `<p class="ai-error">Couldn't load products right now.</p>`;
+  }
+}
+
+function fillProductForm(p){
+  document.getElementById('shopTitle').value = p ? p.title : '';
+  document.getElementById('shopImageUrl').value = p ? p.imageUrl || '' : '';
+  document.getElementById('shopLink').value = p ? p.link : '';
+  document.getElementById('shopDescription').value = p ? p.description || '' : '';
+}
+
+function editProductAdmin(btn){
+  const p = shopAdminCache.find(x => x.id === btn.dataset.id);
+  if(!p) return;
+  editingProductId = p.id;
+  fillProductForm(p);
+  document.getElementById('shopSaveBtn').textContent = 'Update product';
+  document.getElementById('shopCancelBtn').style.display = 'inline-block';
+  document.getElementById('shopTitle').scrollIntoView({ behavior:'smooth', block:'center' });
+}
+
+function cancelEditProduct(){
+  editingProductId = null;
+  fillProductForm(null);
+  document.getElementById('shopSaveBtn').textContent = 'Add product';
+  document.getElementById('shopCancelBtn').style.display = 'none';
+}
+
+async function adminSaveProduct(){
+  const title = document.getElementById('shopTitle').value.trim();
+  const link = document.getElementById('shopLink').value.trim();
+  const imageUrl = document.getElementById('shopImageUrl').value.trim();
+  const description = document.getElementById('shopDescription').value.trim();
+  if(!title || !link){ alert('Title and a redirect link are required.'); return; }
+
+  try{
+    const path = editingProductId ? '/api/admin/shop/products/'+encodeURIComponent(editingProductId) : '/api/admin/shop/products';
+    await apiRequest(path, {
+      method: editingProductId ? 'PUT' : 'POST',
+      headers:{'Content-Type':'application/json','Authorization':'Bearer '+authToken},
+      body: JSON.stringify({ title, link, imageUrl, description })
+    });
+    cancelEditProduct();
+    loadShopAdmin();
+  }catch(e){
+    alert("Couldn't save that product right now.");
+  }
+}
+
+async function deleteProductAdmin(btn){
+  const ok = confirm('Remove this product from the Shop tab?');
+  if(!ok) return;
+  try{
+    await apiRequest('/api/admin/shop/products/'+encodeURIComponent(btn.dataset.id), {
+      method:'DELETE', headers:{ 'Authorization':'Bearer '+authToken }
+    });
+    loadShopAdmin();
+  }catch(e){
+    alert("Couldn't remove that product right now.");
+  }
+}
+
+/* ============================================================
    ADMIN PAGE
    ============================================================ */
 async function renderAdminPage(){
@@ -2310,10 +2505,28 @@ async function renderAdminPage(){
       <h3>AI Nutritionist logs</h3>
       <p class="cal-hint">Recent food entries people have typed. Unsuccessful ones show what wasn't recognized, useful for deciding what to add to FOOD_DB in server.js.</p>
       <div id="nutritionLogsBox"><p class="ai-thinking">Loading…</p></div>
+    </div>
+    <div class="card" style="margin-top:18px;">
+      <h3>Shop products</h3>
+      <p class="cal-hint">Shown to everyone on the Shop tab. Image is a URL (host it wherever, the brand's own site is usually easiest), not a file upload.</p>
+      <div class="form-row" style="align-items:flex-start;flex-wrap:wrap;">
+        <input type="text" id="shopTitle" placeholder="Title" style="flex:1;min-width:140px;">
+        <input type="text" id="shopImageUrl" placeholder="Image URL" style="flex:1;min-width:160px;">
+      </div>
+      <div class="form-row" style="align-items:flex-start;margin-top:8px;">
+        <input type="text" id="shopLink" placeholder="Redirect link (where buying the item goes)" style="flex:2;min-width:200px;">
+      </div>
+      <textarea id="shopDescription" placeholder="Description (shown under the 'Details' dropdown)" rows="2" style="width:100%;margin-top:8px;padding:9px 11px;border-radius:8px;border:1px solid var(--border);background:var(--panel-2);color:var(--text);font-size:13px;font-family:inherit;resize:vertical;"></textarea>
+      <div style="margin-top:10px;display:flex;gap:8px;">
+        <button class="btn-add" id="shopSaveBtn" onclick="adminSaveProduct()">Add product</button>
+        <button class="workout-skip-btn" id="shopCancelBtn" style="display:none;border:1px solid var(--border);border-radius:8px;" onclick="cancelEditProduct()">Cancel edit</button>
+      </div>
+      <div id="shopAdminList" style="margin-top:18px;"><p class="ai-thinking">Loading…</p></div>
     </div>`;
 
   loadNutritionLogs();
   loadDAUChart();
+  loadShopAdmin();
 }
 
 let dauChartInst = null;

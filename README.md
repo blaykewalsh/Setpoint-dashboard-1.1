@@ -52,6 +52,12 @@ access there instead of any of this.
 
 ## A couple of things worth knowing
 
+- **Shop tab.** Admin-managed product tiles (for paid brand promotions later).
+  Add products from the Admin tab: title, redirect link, an image URL (not a
+  file upload, point it at wherever the brand already hosts the image), and
+  an optional description shown behind a "Details" dropdown on the tile.
+  Clicking a tile opens the link in a new tab. Everyone signed in can see
+  the Shop tab; only the admin account can add, edit, or remove products.
 - **Admin tab.** Set `ADMIN_USERNAME` to whichever username you'll sign up
   with, then create (or already have) an account with that exact username.
   Only that account sees the Admin tab, showing total accounts, PRs logged,
