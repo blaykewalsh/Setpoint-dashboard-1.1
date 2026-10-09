@@ -436,6 +436,60 @@
   .shop-admin-row .sar-info .row-title{display:block;}
   .shop-admin-row .sar-info .row-sub{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 
+  /* ---------- SOCIAL ---------- */
+  .soc-fab{position:fixed;right:22px;bottom:22px;width:56px;height:56px;border-radius:50%;border:none;background:var(--accent);color:#101207;font-size:32px;line-height:1;font-weight:500;box-shadow:0 8px 26px rgba(198,255,61,.35);z-index:50;display:none;}
+  .soc-fab.show{display:block;}
+  .soc-fab:active{transform:scale(.94);}
+  .soc-feed{max-width:560px;margin:0 auto;display:flex;flex-direction:column;gap:18px;}
+  .soc-post{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;}
+  .soc-post.pinned{border-color:rgba(198,255,61,.45);}
+  .soc-head{display:flex;align-items:center;gap:10px;padding:12px 14px;}
+  .soc-avatar{width:34px;height:34px;border-radius:50%;background:var(--panel-2);display:flex;align-items:center;justify-content:center;font-weight:700;color:var(--accent);font-size:14px;flex-shrink:0;}
+  .soc-who{flex:1;min-width:0;font-weight:600;font-size:14px;}
+  .soc-who small{display:block;font-weight:400;color:var(--muted);font-size:11.5px;}
+  .soc-tag{font-size:10.5px;font-weight:700;padding:2px 8px;border-radius:999px;background:rgba(198,255,61,.12);color:var(--accent);margin-left:6px;}
+  .soc-menu{background:none;border:none;color:var(--muted);font-size:18px;padding:4px 8px;}
+  .soc-media{display:block;width:100%;max-height:560px;object-fit:contain;background:#0d0e10;}
+  .soc-caption{padding:12px 14px 4px;font-size:14px;line-height:1.5;white-space:pre-wrap;word-break:break-word;}
+  .soc-actions{display:flex;gap:6px;padding:8px 8px 10px;align-items:center;}
+  .soc-btn{background:none;border:none;color:var(--muted);font-size:13.5px;padding:6px 10px;border-radius:8px;font-weight:600;}
+  .soc-btn:hover{background:var(--panel-2);color:var(--text);}
+  .soc-btn.liked{color:var(--red);}
+  .soc-comments{padding:0 14px 12px;}
+  .soc-comment{display:flex;gap:8px;font-size:13px;padding:5px 0;line-height:1.45;}
+  .soc-comment b{margin-right:6px;}
+  .soc-comment .del-row{margin-left:auto;}
+  .soc-cform{display:flex;gap:8px;margin-top:8px;}
+  .soc-cform input{flex:1;padding:9px 12px;border-radius:8px;border:1px solid var(--border);background:var(--panel-2);color:var(--text);font-size:13px;}
+  .soc-ad{cursor:pointer;border-color:#3a3e48;}
+  .soc-ad .soc-tag{background:var(--panel-2);color:var(--muted);margin:0;}
+  .soc-ad-cta{display:block;margin:0 14px 14px;padding:9px 12px;border-radius:8px;background:var(--panel-2);font-size:12.5px;font-weight:600;color:var(--accent);text-align:center;}
+  .soc-pick{display:flex;align-items:center;justify-content:center;margin-top:14px;padding:26px 14px;border:1.5px dashed var(--border);border-radius:12px;color:var(--muted);font-size:14px;cursor:pointer;text-align:center;}
+  .soc-pick:hover{border-color:var(--accent);color:var(--text);}
+  #socPreview img,#socPreview video{width:100%;max-height:260px;object-fit:contain;border-radius:10px;margin-top:12px;background:#0d0e10;}
+  .soc-textarea{width:100%;margin-top:12px;padding:10px 12px;border-radius:8px;border:1px solid var(--border);background:var(--panel-2);color:var(--text);font-size:14px;font-family:inherit;resize:vertical;}
+  .soc-progress{height:6px;border-radius:4px;background:var(--panel-2);overflow:hidden;margin-top:12px;}
+  .soc-progress i{display:block;height:100%;width:0;background:var(--accent);transition:width .15s;}
+  .soc-empty{text-align:center;color:var(--muted);padding:40px 10px;}
+  @media(max-width:900px){.soc-fab{bottom:18px;right:16px;}}
+
+  /* ---------- FOOD HISTORY ---------- */
+  .fh-days{display:grid;grid-template-columns:repeat(7,1fr);gap:8px;margin-bottom:16px;}
+  .fh-day{display:flex;flex-direction:column;align-items:center;gap:2px;padding:10px 4px 8px;border-radius:14px;border:1px solid var(--border);background:var(--panel-2);color:var(--muted);font-size:11px;font-weight:600;}
+  .fh-day b{font-family:'Bebas Neue';font-size:22px;line-height:1;color:var(--text);font-weight:400;}
+  .fh-day .fh-bar{width:70%;height:4px;border-radius:3px;background:var(--border);overflow:hidden;margin-top:4px;}
+  .fh-day .fh-bar i{display:block;height:100%;background:var(--accent);}
+  .fh-day.over .fh-bar i{background:var(--red);}
+  .fh-day.sel{border-color:var(--accent);background:rgba(198,255,61,.1);}
+  .fh-day.sel b,.fh-day.sel{color:var(--accent);}
+  .fh-sum{font-size:13px;color:var(--muted);margin:0 0 10px;}
+  .fh-sum b{color:var(--text);}
+  .fh-entry{display:flex;gap:12px;align-items:center;padding:10px 0;border-top:1px solid var(--border);font-size:13.5px;}
+  .fh-time{flex-shrink:0;min-width:54px;padding:4px 8px;text-align:center;border-radius:999px;background:var(--panel-2);font-size:12px;color:var(--muted);}
+  .fh-entry .fh-name{flex:1;}
+  .fh-entry .fh-mac{font-size:11.5px;color:var(--muted);display:block;}
+  @media(max-width:480px){.fh-days{gap:4px;} .fh-day{padding:8px 2px 6px;font-size:10px;}}
+
   /* ---------- POLISH ---------- */
   html{scroll-behavior:smooth;}
   body{-webkit-font-smoothing:antialiased;}
@@ -548,6 +602,7 @@
 
     <div id="signupForm" style="display:none;">
       <div class="field"><label>Choose a username</label><input type="text" id="suUser" autocomplete="username"></div>
+      <div class="field"><label>Email address</label><input type="email" id="suEmail" autocomplete="email" placeholder="you@example.com"></div>
       <div class="field"><label>Choose a password</label>
         <div class="pw-wrap">
           <input type="password" id="suPass" autocomplete="new-password">
@@ -581,6 +636,32 @@
     <div id="workoutBody"></div>
   </div>
 </div>
+<div class="legal-modal-overlay" id="postOverlay">
+  <div class="legal-modal" style="max-width:460px;">
+    <button class="close-modal" onclick="closePostModal()" aria-label="Close">✕</button>
+    <h2>New post</h2>
+    <label class="soc-pick" id="socPick">
+      <span id="socPickText">Tap to choose a photo or video</span>
+      <input type="file" id="socFile" accept="image/*,video/mp4,video/quicktime,video/webm" style="display:none;" onchange="onSocialFile(this)">
+    </label>
+    <div id="socPreview"></div>
+    <textarea id="socCaption" maxlength="500" rows="3" placeholder="Write a caption…" class="soc-textarea"></textarea>
+    <p class="cal-hint" style="margin:6px 0 0;">Photos and videos up to 40 MB. Posts disappear after 24 hours. Be kind, they're public to everyone on Setpoint and can be reported.</p>
+    <div class="auth-error" id="socError"></div>
+    <div class="soc-progress" id="socProgress" style="display:none;"><i></i></div>
+    <button class="btn btn-primary" id="socPostBtn" style="margin-top:12px;" onclick="submitPost()">Post</button>
+  </div>
+</div>
+<div class="legal-modal-overlay" id="emailOverlay">
+  <div class="legal-modal" style="max-width:440px;">
+    <h2>✉️ Add your email</h2>
+    <p style="margin-top:14px;">Add an email to your account so we can reach you about important updates. We won't sell it or share it, and you can read how it's used in the Privacy Policy.</p>
+    <div class="field" style="margin-top:14px;"><input type="email" id="emailPromptInput" autocomplete="email" placeholder="you@example.com" onkeydown="if(event.key==='Enter') saveEmailPrompt();"></div>
+    <div class="auth-error" id="emailPromptError"></div>
+    <button class="btn btn-primary" style="margin-top:6px;" onclick="saveEmailPrompt()">Save email</button>
+    <button class="landing-login-link" style="display:block;margin:14px auto 0;" onclick="closeEmailPrompt()">Maybe later</button>
+  </div>
+</div>
 <div class="legal-modal-overlay" id="announcementOverlay">
   <div class="legal-modal" style="max-width:440px;">
     <h2>📣 Announcement</h2>
@@ -595,7 +676,10 @@
     <p class="row-sub">Last updated: 2026. Plain-language summary, not a substitute for reading it in full.</p>
 
     <h3>What we collect</h3>
-    <p>Your username and a hashed (never plain-text) password, plus whatever you enter into the app: workout splits, PRs, bodyweight, your diet profile and generated meal plans, your chosen sport, and any food descriptions you type into the AI Nutritionist.</p>
+    <p>Your username, your email address (used only to contact you about your account or important updates, never sold or shared), and a hashed (never plain-text) password, plus whatever you enter into the app: workout splits, PRs, bodyweight, your diet profile and generated meal plans, your chosen sport, and any food descriptions you type into the AI Nutritionist.</p>
+
+    <h3>Social feed</h3>
+    <p>Photos, videos, captions, likes and comments you post in the Social tab are visible to everyone with a Setpoint account, and the file links aren't login-protected, so don't post anything you wouldn't want seen. Don't post illegal, hateful or other people's private content. Anyone can report a post, and the admin can remove posts and comments. Posts are automatically deleted 24 hours after they're shared (the admin can pin a post to keep it up longer). Deleting your account deletes your posts and comments. The admin may run sponsored ads in the feed; clicking one opens an external site we don't control.</p>
 
     <h3>Third parties</h3>
     <p>When you log food, your description is matched against a small built-in food database on the server, no external service sees it. If you're using this inside Claude, that request may go to Anthropic instead. Neither is used for advertising, and your data isn't sold or shared with anyone else.</p>
@@ -641,6 +725,7 @@
       <button class="nav-btn" data-page="diet" onclick="goPage('diet')">🍽️&nbsp; Dietary</button>
       <button class="nav-btn" data-page="sports" onclick="goPage('sports')">🏀&nbsp; Sports</button>
       <button class="nav-btn" data-page="ranked" onclick="goPage('ranked')">🏆&nbsp; Ranked</button>
+      <button class="nav-btn" data-page="social" onclick="goPage('social')">💬&nbsp; Social</button>
       <button class="nav-btn" data-page="shop" onclick="goPage('shop')">🛍️&nbsp; Shop</button>
       <button class="nav-btn nav-admin" data-page="admin" onclick="goPage('admin')" style="display:none;">🛠️&nbsp; Admin</button>
     </nav>
@@ -881,6 +966,11 @@
           <div id="foodStatus"></div>
           <div class="log-list" id="foodLogList"></div>
         </div>
+        <div class="card" style="margin-bottom:18px;" id="foodHistoryCard">
+          <h3>Last 7 days</h3>
+          <div class="fh-days" id="foodHistoryDays"></div>
+          <div id="foodHistoryDetail"></div>
+        </div>
         <div class="card" style="margin-bottom:18px;">
           <h3>Weekly meal plan</h3>
           <div class="day-tabs" id="dietDayTabs"></div>
@@ -910,6 +1000,13 @@
       <div id="rankedContent"></div>
     </section>
 
+    <!-- SOCIAL -->
+    <section class="page" id="page-social">
+      <div class="page-head"><div><h1>Social</h1><p>Share a photo or video with everyone on Setpoint. Posts disappear after 24 hours.</p></div></div>
+      <div id="socialContent"></div>
+    </section>
+    <button class="soc-fab" id="socFab" onclick="openPostModal()" aria-label="New post" title="New post">+</button>
+
     <!-- SHOP -->
     <section class="page" id="page-shop">
       <div class="page-head"><div><h1>Shop</h1><p>Gear and products picked out for the Setpoint community.</p></div></div>
@@ -936,6 +1033,7 @@
   <button class="nav-btn" data-page="diet" onclick="goPage('diet');closeDrawer();">🍽️&nbsp; Dietary</button>
   <button class="nav-btn" data-page="sports" onclick="goPage('sports');closeDrawer();">🏀&nbsp; Sports</button>
   <button class="nav-btn" data-page="ranked" onclick="goPage('ranked');closeDrawer();">🏆&nbsp; Ranked</button>
+  <button class="nav-btn" data-page="social" onclick="goPage('social');closeDrawer();">💬&nbsp; Social</button>
   <button class="nav-btn" data-page="shop" onclick="goPage('shop');closeDrawer();">🛍️&nbsp; Shop</button>
   <button class="nav-btn nav-admin" data-page="admin" onclick="goPage('admin');closeDrawer();" style="display:none;">🛠️&nbsp; Admin</button>
   <div class="sb-foot">
@@ -1178,7 +1276,7 @@ function emptyData(){
   return {
     planner: { split:'Push/Pull/Legs', goal:'Hypertrophy', dayLabels: {...SPLIT_TEMPLATES['Push/Pull/Legs']}, exercises: {Monday:[],Tuesday:[],Wednesday:[],Thursday:[],Friday:[],Saturday:[],Sunday:[]} },
     stats: { bodyweight: [], prs: [], workoutsCompleted: [], swim: [], cycle: [], run: [] },
-    diet: { profile:null, plan:null, dailyLog:null, goalHistory:[] },
+    diet: { profile:null, plan:null, dailyLog:null, goalHistory:[], history:{} },
     sports: { selected:'Basketball' },
     workoutSession: null
   };
@@ -1334,8 +1432,8 @@ async function apiRequest(path, options){
   }
   return body;
 }
-async function apiSignup(u,p){
-  return apiRequest('/api/auth/signup', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ username:u, password:p, consent:true }) });
+async function apiSignup(u,p,email){
+  return apiRequest('/api/auth/signup', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ username:u, password:p, email, consent:true }) });
 }
 async function apiLogin(u,p){
   return apiRequest('/api/auth/login', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ username:u, password:p }) });
@@ -1412,7 +1510,9 @@ async function forgetSession(){
 async function handleSignup(){
   const u = document.getElementById('suUser').value.trim();
   const p = document.getElementById('suPass').value.trim();
+  const em = document.getElementById('suEmail').value.trim();
   if(!u || !p){ showAuthError('Enter a username and password.'); return; }
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(em)){ showAuthError('Enter a valid email address.'); return; }
   if(!document.getElementById('suConsent').checked){
     showAuthError("Please confirm you're 16 or older and agree to the Privacy Policy & Terms.");
     return;
@@ -1426,7 +1526,7 @@ async function handleSignup(){
   }
 
   try{
-    const result = await apiSignup(u,p);
+    const result = await apiSignup(u,p,em);
     authToken = result.token;
     currentUser = result.username;
     usingBackendAccount = true;
@@ -1523,6 +1623,7 @@ function enterApp(){
   if(!data.stats) data.stats = emptyData().stats;
   if(!data.diet) data.diet = emptyData().diet;
   if(data.diet.dailyLog === undefined) data.diet.dailyLog = null;
+  if(!data.diet.history) data.diet.history = {};
   if(data.workoutSession === undefined) data.workoutSession = null;
   if(!data.stats.workoutsCompleted) data.stats.workoutsCompleted = [];
   if(!data.stats.swim) data.stats.swim = [];
@@ -1542,18 +1643,295 @@ function enterApp(){
   if(usingBackendAccount) checkAnnouncement();
 }
 
+let emailPromptShown = false;
 async function checkAnnouncement(){
+  let shown = false;
   try{
     const ann = await apiRequest('/api/announcement', { headers:{ 'Authorization':'Bearer '+authToken } });
     if(ann){
       document.getElementById('announcementText').textContent = ann.message;
       document.getElementById('announcementOverlay').classList.add('open');
+      shown = true;
+    }
+  }catch(e){ /* not critical */ }
+  if(!shown) checkEmailPrompt();
+}
+// Existing accounts made before emails were collected get asked once per
+// visit until they add one. "Maybe later" only hides it for this session.
+async function checkEmailPrompt(){
+  if(emailPromptShown || !usingBackendAccount) return;
+  try{
+    const me = await apiMe();
+    if(me && !me.email){
+      emailPromptShown = true;
+      document.getElementById('emailOverlay').classList.add('open');
     }
   }catch(e){ /* not critical */ }
 }
+function closeEmailPrompt(){ document.getElementById('emailOverlay').classList.remove('open'); }
+async function saveEmailPrompt(){
+  const v = document.getElementById('emailPromptInput').value.trim();
+  const err = document.getElementById('emailPromptError');
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v)){ err.textContent = 'Enter a valid email address.'; err.style.display = 'block'; return; }
+  try{
+    await apiRequest('/api/account/email', { method:'PUT', headers:{'Content-Type':'application/json','Authorization':'Bearer '+authToken}, body: JSON.stringify({ email:v }) });
+    closeEmailPrompt();
+  }catch(e){ err.textContent = e.message || 'Could not save that, try again.'; err.style.display = 'block'; }
+}
 async function dismissAnnouncement(){
   document.getElementById('announcementOverlay').classList.remove('open');
+  checkEmailPrompt();
   try{ await apiRequest('/api/announcement/dismiss', { method:'POST', headers:{ 'Authorization':'Bearer '+authToken } }); }catch(e){}
+}
+
+/* ============================================================
+   SOCIAL FEED
+   ============================================================ */
+let socialPosts = [], socialAds = [], socialHasMore = false, socialOpenComments = new Set(), socialAdIdx = 0;
+let socialPendingBlob = null;
+function socAuth(){ return { 'Authorization':'Bearer '+authToken }; }
+function timeAgo(iso){
+  const s = Math.max(1, Math.floor((Date.now()-new Date(iso).getTime())/1000));
+  if(s<60) return 'just now'; if(s<3600) return Math.floor(s/60)+'m ago';
+  if(s<86400) return Math.floor(s/3600)+'h ago'; return Math.floor(s/86400)+'d ago';
+}
+function socMediaHtml(m, extra){
+  const src = '/uploads/'+encodeURIComponent(m.file);
+  return m.kind==='video'
+    ? `<video class="soc-media" src="${src}" controls playsinline preload="metadata" ${extra||''}></video>`
+    : `<img class="soc-media" src="${src}" alt="" loading="lazy">`;
+}
+function leftLabel(iso){
+  const m = Math.max(0, Math.floor((new Date(iso).getTime()-Date.now())/60000));
+  return m>=60 ? Math.floor(m/60)+'h left' : Math.max(1,m)+'m left';
+}
+function socPostHtml(p){
+  const open = socialOpenComments.has(p.id);
+  const comments = open ? `<div class="soc-comments">
+      ${p.comments.map(c=>`<div class="soc-comment"><span><b>${escapeHtml(c.username)}</b>${escapeHtml(c.text)}</span>${(c.mine||isAdminUser)?`<button class="del-row" data-pid="${p.id}" data-cid="${c.id}" onclick="socDeleteComment(this)">✕</button>`:''}</div>`).join('') || '<p class="row-sub" style="margin:4px 0;">No comments yet.</p>'}
+      <div class="soc-cform"><input type="text" maxlength="300" id="socC-${p.id}" placeholder="Add a comment…" onkeydown="if(event.key==='Enter') socAddComment(this)" data-pid="${p.id}"><button class="btn-add" data-pid="${p.id}" onclick="socAddComment(this)">Post</button></div>
+    </div>` : '';
+  return `<article class="soc-post ${p.pinned?'pinned':''}" id="sp-${p.id}">
+    <div class="soc-head"><div class="soc-avatar">${escapeHtml(p.username.charAt(0).toUpperCase())}</div>
+      <div class="soc-who">${escapeHtml(p.username)}${p.isAdminAuthor?'<span class="soc-tag">Admin</span>':''}${p.pinned?'<span class="soc-tag">📌 Pinned</span>':''}<small>${timeAgo(p.createdAt)}${p.expiresAt?' · '+leftLabel(p.expiresAt):''}</small></div>
+      ${isAdminUser?`<button class="soc-btn" data-pid="${p.id}" data-pinned="${p.pinned?1:0}" onclick="socTogglePin(this)">${p.pinned?'Unpin':'Pin'}</button>`:''}
+      ${(p.mine||isAdminUser)?`<button class="soc-btn" data-pid="${p.id}" onclick="socDeletePost(this)">Delete</button>`:`<button class="soc-btn" data-pid="${p.id}" onclick="socReport(this)">Report</button>`}
+    </div>
+    ${socMediaHtml(p.media)}
+    ${p.caption?`<div class="soc-caption">${escapeHtml(p.caption)}</div>`:''}
+    <div class="soc-actions">
+      <button class="soc-btn ${p.liked?'liked':''}" data-pid="${p.id}" onclick="socLike(this)">${p.liked?'♥':'♡'} ${p.likeCount}</button>
+      <button class="soc-btn" data-pid="${p.id}" onclick="socToggleComments(this)">💬 ${p.comments.length}</button>
+    </div>${comments}</article>`;
+}
+function socAdHtml(a){
+  return `<article class="soc-post soc-ad" data-aid="${a.id}" data-link="${escapeAttr(a.link)}" onclick="socAdClick(this)">
+    <div class="soc-head"><div class="soc-avatar">★</div><div class="soc-who">Sponsored<small>Tap to learn more</small></div><span class="soc-tag">Ad</span></div>
+    ${socMediaHtml(a.media, 'muted loop')}
+    ${a.caption?`<div class="soc-caption">${escapeHtml(a.caption)}</div>`:''}
+    <span class="soc-ad-cta">Learn more</span></article>`;
+}
+function renderSocialFeed(){
+  const box = document.getElementById('socialFeed');
+  if(!box) return;
+  if(!socialPosts.length){ box.innerHTML = `<div class="soc-empty">No posts yet. Tap the + button to share the first one.</div>`; return; }
+  let out = '', ai = socialAdIdx;
+  socialPosts.forEach((p,i)=>{
+    out += socPostHtml(p);
+    if(socialAds.length && (i+1)%4===0){ out += socAdHtml(socialAds[ai % socialAds.length]); ai++; }
+  });
+  box.innerHTML = out + (socialHasMore ? `<button class="btn btn-ghost" onclick="loadSocial(true)">Load more</button>` : '');
+}
+function rerenderPost(id){
+  const p = socialPosts.find(x=>x.id===id), el = document.getElementById('sp-'+id);
+  if(p && el) el.outerHTML = socPostHtml(p);
+}
+async function renderSocialPage(){
+  const box = document.getElementById('socialContent');
+  if(!usingBackendAccount){
+    box.innerHTML = `<div class="card"><p class="empty">The social feed needs an online account. Log in with your Setpoint account on the website to see and share posts.</p></div>`;
+    document.getElementById('socFab').classList.remove('show');
+    return;
+  }
+  box.innerHTML = `<div class="soc-feed" id="socialFeed"><p class="ai-thinking">Loading…</p></div>`;
+  document.getElementById('socFab').classList.add('show');
+  await loadSocial(false);
+}
+async function loadSocial(more){
+  try{
+    const r = await apiRequest('/api/social/feed?offset='+(more?socialPosts.length:0), { headers: socAuth() });
+    socialPosts = more ? socialPosts.concat(r.posts) : r.posts;
+    socialAds = r.ads; socialHasMore = r.hasMore;
+    renderSocialFeed();
+  }catch(e){
+    document.getElementById('socialFeed').innerHTML = `<p class="ai-error">Couldn't load the feed right now. Try again in a moment.</p>`;
+  }
+}
+async function socLike(btn){
+  const p = socialPosts.find(x=>x.id===btn.dataset.pid); if(!p) return;
+  p.liked = !p.liked; p.likeCount += p.liked ? 1 : -1; rerenderPost(p.id);   // optimistic
+  try{
+    const r = await apiRequest('/api/social/posts/'+p.id+'/like', { method:'POST', headers: socAuth() });
+    p.liked = r.liked; p.likeCount = r.likeCount; rerenderPost(p.id);
+  }catch(e){ p.liked = !p.liked; p.likeCount += p.liked ? 1 : -1; rerenderPost(p.id); }
+}
+function socToggleComments(btn){
+  const id = btn.dataset.pid;
+  socialOpenComments.has(id) ? socialOpenComments.delete(id) : socialOpenComments.add(id);
+  rerenderPost(id);
+}
+async function socAddComment(el){
+  const id = el.dataset.pid, input = document.getElementById('socC-'+id), text = input.value.trim();
+  if(!text) return;
+  try{
+    const c = await apiRequest('/api/social/posts/'+id+'/comments', { method:'POST', headers:{...socAuth(),'Content-Type':'application/json'}, body: JSON.stringify({text}) });
+    socialPosts.find(x=>x.id===id).comments.push(c); rerenderPost(id);
+    const ni = document.getElementById('socC-'+id); if(ni) ni.focus();
+  }catch(e){ alert(e.message || 'Could not post that comment.'); }
+}
+async function socDeleteComment(btn){
+  const id = btn.dataset.pid, cid = btn.dataset.cid;
+  try{
+    await apiRequest('/api/social/posts/'+id+'/comments/'+cid, { method:'DELETE', headers: socAuth() });
+    const p = socialPosts.find(x=>x.id===id); p.comments = p.comments.filter(c=>c.id!==cid); rerenderPost(id);
+  }catch(e){ alert(e.message || 'Could not delete that comment.'); }
+}
+async function socDeletePost(btn){
+  if(!confirm('Delete this post? This can\'t be undone.')) return;
+  try{
+    await apiRequest('/api/social/posts/'+btn.dataset.pid, { method:'DELETE', headers: socAuth() });
+    socialPosts = socialPosts.filter(p=>p.id!==btn.dataset.pid); renderSocialFeed();
+  }catch(e){ alert(e.message || 'Could not delete that post.'); }
+}
+async function socReport(btn){
+  if(!confirm('Report this post to the admin?')) return;
+  try{ await apiRequest('/api/social/posts/'+btn.dataset.pid+'/report', { method:'POST', headers: socAuth() }); alert('Thanks, it has been reported.'); }
+  catch(e){ alert(e.message || 'Could not report that.'); }
+}
+async function socTogglePin(btn){
+  const pin = btn.dataset.pinned !== '1';
+  try{
+    await apiRequest('/api/admin/social/posts/'+btn.dataset.pid+'/pin', { method:'PUT', headers:{...socAuth(),'Content-Type':'application/json'}, body: JSON.stringify({pinned:pin}) });
+    await loadSocial(false);
+  }catch(e){ alert(e.message || 'Could not change the pin.'); }
+}
+function socAdClick(el){
+  const link = el.dataset.link;
+  try{ apiRequest('/api/social/ads/'+el.dataset.aid+'/click', { method:'POST', headers: socAuth() }).catch(()=>{}); }catch(e){}
+  if(/^https?:\/\//i.test(link)) window.open(link, '_blank', 'noopener,noreferrer');
+}
+
+/* ---- Posting: pick a file, shrink photos in the browser, upload ---- */
+const SOC_MAX_BYTES = 40*1024*1024;
+function openPostModal(){
+  socialPendingBlob = null;
+  document.getElementById('socFile').value = '';
+  document.getElementById('socPickText').textContent = 'Tap to choose a photo or video';
+  document.getElementById('socPreview').innerHTML = '';
+  document.getElementById('socCaption').value = '';
+  document.getElementById('socError').style.display = 'none';
+  document.getElementById('socProgress').style.display = 'none';
+  document.getElementById('socPostBtn').disabled = false;
+  document.getElementById('postOverlay').classList.add('open');
+}
+function closePostModal(){ document.getElementById('postOverlay').classList.remove('open'); document.getElementById('socPreview').innerHTML=''; }
+function socErr(msg){ const e = document.getElementById('socError'); e.textContent = msg; e.style.display = 'block'; }
+async function shrinkImage(file){
+  if(file.type === 'image/gif') return file;
+  const url = URL.createObjectURL(file);
+  try{
+    const img = new Image();
+    await new Promise((res,rej)=>{ img.onload=res; img.onerror=rej; img.src=url; });
+    const max = 1600, scale = Math.min(1, max/Math.max(img.naturalWidth, img.naturalHeight));
+    const c = document.createElement('canvas');
+    c.width = Math.round(img.naturalWidth*scale); c.height = Math.round(img.naturalHeight*scale);
+    c.getContext('2d').drawImage(img,0,0,c.width,c.height);
+    const blob = await new Promise(res=>c.toBlob(res,'image/jpeg',0.85));
+    return blob || file;
+  }finally{ URL.revokeObjectURL(url); }
+}
+async function onSocialFile(input){
+  const f = input.files[0]; if(!f) return;
+  document.getElementById('socError').style.display = 'none';
+  const isVideo = f.type.startsWith('video/'), isImage = f.type.startsWith('image/');
+  if(!isVideo && !isImage){ socErr('Choose a photo or a video.'); return; }
+  if(isVideo && f.size > SOC_MAX_BYTES){ socErr('That video is over 40 MB. Trim it or pick a shorter one.'); input.value=''; return; }
+  try{
+    socialPendingBlob = isImage ? await shrinkImage(f) : f;
+  }catch(e){ socErr('Couldn\'t read that photo. Try a JPG or PNG.'); input.value=''; return; }
+  if(socialPendingBlob.size > SOC_MAX_BYTES){ socErr('That file is over 40 MB.'); socialPendingBlob=null; return; }
+  const url = URL.createObjectURL(socialPendingBlob);
+  document.getElementById('socPickText').textContent = 'Change file';
+  document.getElementById('socPreview').innerHTML = isVideo ? `<video src="${url}" controls playsinline muted></video>` : `<img src="${url}" alt="">`;
+}
+function submitPost(){
+  if(!socialPendingBlob){ socErr('Choose a photo or video first.'); return; }
+  const btn = document.getElementById('socPostBtn'), bar = document.getElementById('socProgress');
+  btn.disabled = true; bar.style.display = 'block'; bar.firstElementChild.style.width = '0%';
+  document.getElementById('socError').style.display = 'none';
+  const xhr = new XMLHttpRequest();
+  xhr.open('POST','/api/social/posts');
+  xhr.setRequestHeader('Authorization','Bearer '+authToken);
+  xhr.setRequestHeader('Content-Type','application/octet-stream');
+  xhr.setRequestHeader('X-Caption', encodeURIComponent(document.getElementById('socCaption').value.trim()));
+  xhr.upload.onprogress = e => { if(e.lengthComputable) bar.firstElementChild.style.width = Math.round(e.loaded/e.total*100)+'%'; };
+  xhr.onload = () => {
+    btn.disabled = false;
+    let body = {}; try{ body = JSON.parse(xhr.responseText); }catch(e){}
+    if(xhr.status>=200 && xhr.status<300){ closePostModal(); loadSocial(false); }
+    else if(xhr.status===413) socErr('That file is too big. The limit is 40 MB.');
+    else socErr(body.error || 'Couldn\'t post that. Try again.');
+  };
+  xhr.onerror = () => { btn.disabled = false; socErr('Network problem, check your connection and try again.'); };
+  xhr.send(socialPendingBlob);
+}
+
+/* ---- Admin: ads + moderation ---- */
+async function loadSocialAdmin(){
+  const box = document.getElementById('socialAdminBox'); if(!box) return;
+  try{
+    const [ads, rep] = await Promise.all([
+      apiRequest('/api/admin/social/ads', { headers: socAuth() }),
+      apiRequest('/api/admin/social/reports', { headers: socAuth() })
+    ]);
+    box.innerHTML = `
+      <p class="cal-hint">Storage used: <b>${rep.storageMB} MB</b> of ${rep.storageCapMB} MB cap, ${rep.totalPosts} posts.</p>
+      <h4 style="margin:14px 0 8px;font-size:13px;">Reported posts</h4>
+      ${rep.reported.length ? rep.reported.map(r=>`<div class="log-item"><div style="display:flex;gap:10px;align-items:center;min-width:0;">${r.media.kind==='video'?'🎞️':`<img src="/uploads/${encodeURIComponent(r.media.file)}" alt="" style="width:44px;height:44px;object-fit:cover;border-radius:8px;">`}<div><div class="li-name">${escapeHtml(r.username)}: ${escapeHtml((r.caption||'').slice(0,60)) || '(no caption)'}</div><div class="li-macro">${r.reports} report${r.reports>1?'s':''}</div></div></div><button class="del-row" title="Delete post" data-pid="${r.id}" onclick="adminDeleteReported(this)">✕</button></div>`).join('') : '<p class="empty">Nothing reported.</p>'}
+      <h4 style="margin:18px 0 8px;font-size:13px;">Current ads</h4>
+      ${ads.length ? ads.map(a=>`<div class="log-item"><div style="display:flex;gap:10px;align-items:center;min-width:0;">${a.media.kind==='video'?'🎞️':`<img src="/uploads/${encodeURIComponent(a.media.file)}" alt="" style="width:44px;height:44px;object-fit:cover;border-radius:8px;">`}<div><div class="li-name">${escapeHtml(a.caption||'(no caption)')}</div><div class="li-macro">${a.clicks||0} clicks · ${a.active?'Live':'Paused'}</div></div></div>
+        <div style="white-space:nowrap;"><button class="soc-btn" data-aid="${a.id}" data-active="${a.active?1:0}" onclick="adminToggleAd(this)">${a.active?'Pause':'Resume'}</button><button class="del-row" data-aid="${a.id}" onclick="adminDeleteAd(this)">✕</button></div></div>`).join('') : '<p class="empty">No ads yet.</p>'}`;
+  }catch(e){ box.innerHTML = `<p class="ai-error">Couldn't load social admin tools.</p>`; }
+}
+async function adminCreateAd(){
+  const f = document.getElementById('adFile').files[0], cap = document.getElementById('adCaption').value.trim(), link = document.getElementById('adLink').value.trim();
+  const st = document.getElementById('adStatus');
+  if(!f){ st.innerHTML = '<p class="ai-error">Choose a photo or video for the ad.</p>'; return; }
+  if(!/^https?:\/\//i.test(link)){ st.innerHTML = '<p class="ai-error">Enter a link starting with http:// or https://</p>'; return; }
+  if(f.size > SOC_MAX_BYTES){ st.innerHTML = '<p class="ai-error">File is over 40 MB.</p>'; return; }
+  st.innerHTML = '<p class="ai-thinking">Uploading…</p>';
+  try{
+    const body = f.type.startsWith('image/') ? await shrinkImage(f) : f;
+    const r = await fetch('/api/admin/social/ads', { method:'POST', headers:{...socAuth(),'Content-Type':'application/octet-stream','X-Caption':encodeURIComponent(cap),'X-Link':encodeURIComponent(link)}, body });
+    const j = await r.json().catch(()=>({}));
+    if(!r.ok) throw new Error(j.error || 'Upload failed.');
+    document.getElementById('adFile').value=''; document.getElementById('adCaption').value=''; document.getElementById('adLink').value='';
+    st.innerHTML = '<p class="cal-hint">Ad is live in the feed.</p>'; loadSocialAdmin();
+  }catch(e){ st.innerHTML = `<p class="ai-error">${escapeHtml(e.message)}</p>`; }
+}
+async function adminToggleAd(btn){
+  await apiRequest('/api/admin/social/ads/'+btn.dataset.aid, { method:'PUT', headers:{...socAuth(),'Content-Type':'application/json'}, body: JSON.stringify({active: btn.dataset.active!=='1'}) });
+  loadSocialAdmin();
+}
+async function adminDeleteAd(btn){
+  if(!confirm('Delete this ad?')) return;
+  await apiRequest('/api/admin/social/ads/'+btn.dataset.aid, { method:'DELETE', headers: socAuth() });
+  loadSocialAdmin();
+}
+async function adminDeleteReported(btn){
+  if(!confirm('Delete this post permanently?')) return;
+  await apiRequest('/api/social/posts/'+btn.dataset.pid, { method:'DELETE', headers: socAuth() });
+  loadSocialAdmin();
 }
 
 /* ============================================================
@@ -1570,6 +1948,8 @@ function goPage(name){
   if(name==='sports') renderSportsPage();
   if(name==='ranked') renderRankedPage();
   if(name==='shop') renderShopPage();
+  if(name==='social') renderSocialPage();
+  document.getElementById('socFab').classList.toggle('show', name==='social' && usingBackendAccount);
   if(name==='admin') renderAdminPage();
 }
 
@@ -2175,6 +2555,12 @@ function ensureDietLogFresh(){
     if(data.diet.dailyLog && data.diet.dailyLog.entries.length && data.diet.plan){
       finalizeGoalDay(data.diet.dailyLog);
     }
+    if(data.diet.dailyLog && data.diet.dailyLog.entries.length){
+      if(!data.diet.history) data.diet.history = {};
+      data.diet.history[data.diet.dailyLog.date] = data.diet.dailyLog.entries;
+      const keep = Object.keys(data.diet.history).sort().slice(-14);
+      Object.keys(data.diet.history).forEach(k => { if(!keep.includes(k)) delete data.diet.history[k]; });
+    }
     data.diet.dailyLog = { date: today, entries: [] };
     saveUserData();
   }
@@ -2242,6 +2628,8 @@ async function logFood(){
   status.innerHTML = `<p class="ai-thinking">AI Nutritionist is estimating that…</p>`;
   try{
     const entry = await estimateFoodAI(desc);
+    const nowT = new Date();
+    entry.t = String(nowT.getHours()).padStart(2,'0') + ':' + String(nowT.getMinutes()).padStart(2,'0');
     data.diet.dailyLog.entries.push(entry);
     saveUserData();
     input.value = '';
@@ -2366,6 +2754,41 @@ function renderCalorieCounter(){
         <button class="del-row" onclick="deleteFoodEntry(${i})">✕</button>
       </div>
     </div>`).join('') || `<p class="empty">Nothing logged yet today. Tell the AI Nutritionist what you ate above.</p>`;
+  renderFoodHistory();
+}
+
+let foodHistorySel = null;
+function foodEntriesFor(dateStr){
+  if(data.diet.dailyLog && data.diet.dailyLog.date === dateStr) return data.diet.dailyLog.entries;
+  return (data.diet.history && data.diet.history[dateStr]) || [];
+}
+function pickHistoryDay(btn){ foodHistorySel = btn.dataset.date; renderFoodHistory(); }
+function renderFoodHistory(){
+  const daysEl = document.getElementById('foodHistoryDays');
+  if(!daysEl) return;
+  const target = data.diet.plan ? data.diet.plan.calories : 0;
+  const today = new Date();
+  const days = [];
+  for(let i=6;i>=0;i--){ const d = new Date(today.getFullYear(), today.getMonth(), today.getDate()-i); days.push(d); }
+  const todayStr = localDateStr(today);
+  if(!foodHistorySel || !days.some(d=>localDateStr(d)===foodHistorySel)) foodHistorySel = todayStr;
+  daysEl.innerHTML = days.map(d=>{
+    const ds = localDateStr(d);
+    const total = foodEntriesFor(ds).reduce((a,e)=>a+e.cals,0);
+    const pct = target ? Math.min(100, Math.round(total/target*100)) : (total?100:0);
+    return `<button class="fh-day ${ds===foodHistorySel?'sel':''} ${target && total>target*1.1?'over':''}" data-date="${ds}" onclick="pickHistoryDay(this)">
+      ${ds===todayStr?'Today':d.toLocaleDateString(undefined,{weekday:'short'})}<b>${d.getDate()}</b>
+      <span class="fh-bar"><i style="width:${pct}%"></i></span></button>`;
+  }).join('');
+  const entries = foodEntriesFor(foodHistorySel);
+  const [y,m,dd] = foodHistorySel.split('-').map(Number);
+  const label = new Date(y,m-1,dd).toLocaleDateString(undefined,{weekday:'long',day:'numeric',month:'long'});
+  const sum = k => Math.round(entries.reduce((a,e)=>a+(e[k]||0),0));
+  const sorted = entries.map((e,i)=>({e,i})).sort((a,b)=>(a.e.t||'99:99').localeCompare(b.e.t||'99:99') || a.i-b.i);
+  document.getElementById('foodHistoryDetail').innerHTML = entries.length ? `
+    <p class="fh-sum"><b>${label}</b>: ${sum('cals')}${target?' / '+target:''} kcal, P ${sum('p')}g, C ${sum('c')}g, F ${sum('f')}g</p>
+    ${sorted.map(({e})=>`<div class="fh-entry"><span class="fh-time">${e.t?escapeHtml(e.t):'Earlier'}</span><span class="fh-name">${escapeHtml(e.name)}<span class="fh-mac">P${e.p}g · C${e.c}g · F${e.f}g</span></span><span>${e.cals} kcal</span></div>`).join('')}`
+    : `<p class="empty">Nothing logged on ${label}.</p>`;
 }
 
 function renderGoalHistory(){
@@ -2646,7 +3069,7 @@ async function deleteProductAdmin(btn){
 /* ============================================================
    ADMIN PAGE
    ============================================================ */
-let adminOpen = { accounts:false, logs:false };
+let adminOpen = { accounts:false, logs:false, social:false };
 async function renderAdminPage(){
   const box = document.getElementById('adminContent');
 
@@ -2684,11 +3107,12 @@ async function renderAdminPage(){
       <p class="cal-hint" style="margin:12px 0;">Newest first. Deleting an account removes its login and all of its data immediately, that can't be undone.</p>
       <div class="table-scroll">
       <table>
-        <thead><tr><th>Username</th><th>Joined</th><th>PRs</th><th>Bodyweight</th><th>Sport</th><th></th></tr></thead>
+        <thead><tr><th>Username</th><th>Email</th><th>Joined</th><th>PRs</th><th>Bodyweight</th><th>Sport</th><th></th></tr></thead>
         <tbody>
           ${overview.users.map(u => `
             <tr>
               <td>${escapeHtml(u.username)}${u.isAdmin?' <span class="ai-badge" style="margin-left:4px;">Admin</span>':''}</td>
+              <td>${u.email ? escapeHtml(u.email) : '—'}</td>
               <td>${u.createdAt ? new Date(u.createdAt).toLocaleDateString() : '—'}</td>
               <td>${u.prCount}</td>
               <td>${u.bwCount}</td>
@@ -2726,6 +3150,20 @@ async function renderAdminPage(){
       <p class="cal-hint" style="margin-top:12px;">Recent food entries people have typed. Unsuccessful ones show what wasn't recognized, useful for deciding what to add to FOOD_DB in server.js.</p>
       <div id="nutritionLogsBox"><p class="ai-thinking">Loading…</p></div>
     </details>
+    <details class="card adm-fold" style="margin-top:18px;" ${adminOpen.social?'open':''} ontoggle="adminOpen.social=this.open">
+      <summary><h3>Social ads &amp; moderation</h3></summary>
+      <p class="cal-hint" style="margin-top:12px;">Ads appear in everyone's feed, about every fourth post, marked "Sponsored". Tapping one opens your link in a new tab. To pin a post, use the Pin button on it in the Social tab.</p>
+      <div class="form-row" style="align-items:flex-start;flex-wrap:wrap;">
+        <input type="file" id="adFile" accept="image/*,video/mp4,video/quicktime,video/webm" style="flex:1;min-width:180px;">
+      </div>
+      <div class="form-row" style="align-items:flex-start;margin-top:8px;flex-wrap:wrap;">
+        <input type="text" id="adCaption" maxlength="300" placeholder="Caption" style="flex:2;min-width:180px;">
+        <input type="text" id="adLink" placeholder="Redirect link (https://…)" style="flex:2;min-width:180px;">
+        <button class="btn-add" onclick="adminCreateAd()">Create ad</button>
+      </div>
+      <div id="adStatus"></div>
+      <div id="socialAdminBox" style="margin-top:14px;"><p class="ai-thinking">Loading…</p></div>
+    </details>
     <div class="card" style="margin-top:18px;">
       <h3>Shop products</h3>
       <p class="cal-hint">Shown to everyone on the Shop tab. Image is a URL (host it wherever, the brand's own site is usually easiest), not a file upload.</p>
@@ -2747,6 +3185,7 @@ async function renderAdminPage(){
   loadNutritionLogs();
   loadDAUChart();
   loadShopAdmin();
+  loadSocialAdmin();
 }
 
 let dauChartInst = null;
