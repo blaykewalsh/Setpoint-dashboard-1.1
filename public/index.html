@@ -353,12 +353,13 @@
   .progress-fill.over{background:var(--red);}
   .cal-input-row{display:flex;gap:8px;margin:16px 0 6px;}
   .scan-btn{display:flex;align-items:center;justify-content:center;width:42px;height:42px;border-radius:8px;border:1px solid var(--border);background:var(--panel-2);font-size:17px;cursor:pointer;flex-shrink:0;}
+  .adm-fold>summary{list-style:none;cursor:pointer;display:flex;align-items:center;justify-content:space-between;}
+  .adm-fold>summary::-webkit-details-marker{display:none;}
+  .adm-fold>summary h3{margin:0;display:flex;align-items:center;gap:8px;}
+  .adm-fold>summary::after{content:'▾';color:var(--muted);transition:transform .2s;}
+  .adm-fold[open]>summary::after{transform:rotate(180deg);}
+  .adm-count{font-size:11px;color:var(--muted);background:var(--panel-2);border-radius:10px;padding:2px 8px;font-weight:500;}
   .scan-btn:hover{border-color:var(--accent);}
-  .label-review{background:var(--panel-2);border:1px solid var(--border);border-radius:12px;padding:16px;margin-top:10px;}
-  .label-review .form-row{margin-bottom:0;}
-  .label-review .f{display:flex;flex-direction:column;gap:4px;}
-  .label-review .f label{font-size:10.5px;color:var(--muted);text-transform:uppercase;}
-  .label-review .f input{width:78px;padding:7px 9px;border-radius:7px;border:1px solid var(--border);background:var(--panel);color:var(--text);font-size:13px;}
   .cal-input-row input{flex:1;padding:10px 12px;border-radius:8px;border:1px solid var(--border);background:var(--panel-2);color:var(--text);font-size:13.5px;}
   .cal-input-row input:focus{border-color:var(--blue);outline:none;}
   .cal-hint{color:var(--muted);font-size:12px;margin:0 0 4px;}
@@ -434,6 +435,58 @@
   .shop-admin-row .sar-info{flex:1;min-width:0;}
   .shop-admin-row .sar-info .row-title{display:block;}
   .shop-admin-row .sar-info .row-sub{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+
+  /* ---------- POLISH ---------- */
+  html{scroll-behavior:smooth;}
+  body{-webkit-font-smoothing:antialiased;}
+  ::-webkit-scrollbar{width:10px;height:10px;} ::-webkit-scrollbar-thumb{background:var(--border);border-radius:8px;} ::-webkit-scrollbar-thumb:hover{background:#3a3e48;}
+  :focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
+  #landing{background:
+    linear-gradient(rgba(255,255,255,.025) 1px,transparent 1px) 0 0/44px 44px,
+    linear-gradient(90deg,rgba(255,255,255,.025) 1px,transparent 1px) 0 0/44px 44px,
+    radial-gradient(circle at 15% 15%, rgba(198,255,61,0.10), transparent 42%),
+    radial-gradient(circle at 85% 85%, rgba(255,84,104,0.08), transparent 42%), var(--bg);}
+  .landing-wrap{max-width:960px;}
+  .lh-badge{display:inline-block;margin-top:22px;padding:6px 14px;border-radius:999px;border:1px solid rgba(198,255,61,.35);background:rgba(198,255,61,.08);color:var(--accent);font-size:12.5px;font-weight:600;}
+  .lh-title{font-size:clamp(46px,9vw,88px);line-height:.95;margin:18px 0 16px;letter-spacing:.01em;}
+  .landing-tagline{max-width:520px;margin:0 auto 30px;line-height:1.55;}
+  .landing-cta-row{margin-bottom:44px;}
+  .btn-primary{box-shadow:0 6px 22px rgba(198,255,61,.18);transition:transform .15s,box-shadow .15s,background .15s;}
+  .btn-primary:hover{transform:translateY(-1px);box-shadow:0 10px 28px rgba(198,255,61,.28);}
+  .btn-primary:active,.btn-add:active{transform:translateY(0) scale(.98);}
+  .lh-preview{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;max-width:720px;margin:0 auto 56px;text-align:left;}
+  .lp-tile{background:rgba(28,30,35,.85);border:1px solid var(--border);border-radius:var(--radius);padding:16px 18px;display:flex;flex-direction:column;gap:6px;box-shadow:0 14px 40px rgba(0,0,0,.35);}
+  .lp-tile:nth-child(2){transform:translateY(-10px);border-color:rgba(198,255,61,.35);}
+  .lp-label{font-size:11.5px;color:var(--muted);font-weight:600;}
+  .lp-num{font-family:'Bebas Neue';font-size:30px;line-height:1;}
+  .lp-num small{font-size:15px;color:var(--muted);}
+  .lp-sub{font-size:12px;color:var(--accent);}
+  .lp-bar{height:6px;border-radius:4px;background:var(--panel-2);overflow:hidden;margin-top:4px;}
+  .lp-bar i{display:block;height:100%;background:var(--accent);border-radius:4px;}
+  .landing-feature{transition:transform .2s,border-color .2s;}
+  .landing-feature .lf-icon{display:inline-flex;width:42px;height:42px;align-items:center;justify-content:center;border-radius:11px;background:var(--panel-2);font-size:20px;}
+  .lh-steps{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:40px;text-align:left;}
+  .lh-steps div{display:flex;gap:12px;align-items:center;color:var(--muted);font-size:13.5px;line-height:1.4;}
+  .lh-steps b{flex-shrink:0;width:30px;height:30px;border-radius:50%;background:var(--accent);color:#101207;display:flex;align-items:center;justify-content:center;font-size:14px;}
+  @media(max-width:700px){.lh-preview,.lh-steps{grid-template-columns:1fr;} .lp-tile:nth-child(2){transform:none;}}
+  @media(hover:hover){
+    .landing-feature:hover{transform:translateY(-3px);border-color:rgba(198,255,61,.4);}
+    .card{transition:border-color .2s,transform .2s;}
+    .card:hover{border-color:#3a3e48;}
+  }
+  .card{box-shadow:0 1px 0 rgba(255,255,255,.03) inset,0 8px 24px rgba(0,0,0,.18);}
+  .auth-card{box-shadow:0 20px 60px rgba(0,0,0,.4);}
+  .sidebar{background:linear-gradient(180deg,var(--panel),#191b1f);}
+  .nav-btn{transition:background .15s,color .15s;position:relative;}
+  .nav-btn.active::before{content:'';position:absolute;left:-16px;top:8px;bottom:8px;width:3px;border-radius:0 3px 3px 0;background:var(--accent);}
+  .page.active{animation:pageIn .28s ease;}
+  @keyframes pageIn{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:none;}}
+  .page-head h1{font-size:40px;letter-spacing:.03em;}
+  .stat-big{color:var(--text);}
+  input[type=text],input[type=number],input[type=password],input[type=date],select,textarea{transition:border-color .15s,box-shadow .15s;}
+  input[type=text]:focus,input[type=number]:focus,input[type=password]:focus,input[type=date]:focus,select:focus,textarea:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(198,255,61,.14);}
+  @media(max-width:900px){.page-head h1{font-size:30px;} .nav-btn.active::before{left:-8px;}}
+  @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;scroll-behavior:auto!important;}}
 </style>
 </head>
 <body>
@@ -443,17 +496,29 @@
   <div class="landing-wrap">
     <div class="landing-hero">
       <div class="auth-brand" style="justify-content:center;"><div class="mark"></div><h1>SETPOINT</h1></div>
-      <p class="landing-tagline">Your training, diet, and stats, all in one dashboard.</p>
+      <span class="lh-badge">Free to use. No membership, ever.</span>
+      <h2 class="lh-title">Train smarter.<br>Eat to match.<br>Watch it add up.</h2>
+      <p class="landing-tagline">Plan your split, track your lifts and food, and see where you rank, all in one place.</p>
       <div class="landing-cta-row">
-        <button class="btn btn-primary" style="width:auto;padding:13px 30px;" onclick="goToAuth(false)">Get Started</button>
+        <button class="btn btn-primary" style="width:auto;padding:14px 34px;" onclick="goToAuth(false)">Get started free</button>
         <button class="landing-login-link" onclick="goToAuth(true)">I already have an account</button>
+      </div>
+      <div class="lh-preview">
+        <div class="lp-tile"><span class="lp-label">Today</span><span class="lp-num">Push day</span><span class="lp-sub">5 exercises</span></div>
+        <div class="lp-tile"><span class="lp-label">Calories</span><span class="lp-num">1,840<small> / 2,400</small></span><div class="lp-bar"><i style="width:77%"></i></div></div>
+        <div class="lp-tile"><span class="lp-label">Bench 1RM</span><span class="lp-num">112 kg</span><span class="lp-sub">+4 kg this month</span></div>
       </div>
     </div>
     <div class="landing-features">
       <div class="landing-feature"><span class="lf-icon">📅</span><h3>Planner</h3><p>Build your split, auto-generate exercises for your goal, and follow it week to week.</p></div>
       <div class="landing-feature"><span class="lf-icon">📈</span><h3>Stats &amp; Ranked</h3><p>Log PRs and bodyweight, estimate your one-rep max, and see how you stack up against others.</p></div>
-      <div class="landing-feature"><span class="lf-icon">🍽️</span><h3>Dietary</h3><p>Get a calorie and macro target, a weekly meal plan with recipes, and an AI-powered food log.</p></div>
+      <div class="landing-feature"><span class="lf-icon">🍽️</span><h3>Dietary</h3><p>Get a calorie and macro target, a weekly meal plan with recipes, and a food log you can type into or snap a photo for.</p></div>
       <div class="landing-feature"><span class="lf-icon">🏀</span><h3>Sports</h3><p>Pick your sport and get real drills, with setup and instructions, mapped to what they train.</p></div>
+    </div>
+    <div class="lh-steps">
+      <div><b>1</b><span>Make a free account in under a minute</span></div>
+      <div><b>2</b><span>Set your goal and build your split</span></div>
+      <div><b>3</b><span>Log sessions and meals, watch your numbers move</span></div>
     </div>
     <button class="footer-legal-link" style="margin-top:28px;" onclick="openLegalModal()">Privacy Policy &amp; Terms</button>
   </div>
@@ -673,6 +738,38 @@
         <p class="cal-hint">Days you completed your planned workout, last 14 days.</p>
         <canvas id="workoutChart" height="140"></canvas>
       </div>
+      <div class="grid grid-3" style="margin-bottom:18px;">
+        <div class="card">
+          <h3>🏊 Swim</h3>
+          <div class="form-row" style="flex-wrap:wrap;">
+            <input type="number" step="0.01" id="swimDistance" placeholder="Distance (km)">
+            <input type="number" step="0.1" id="swimTime" placeholder="Time (min)">
+            <input type="date" id="swimDate">
+          </div>
+          <button class="btn-add" style="width:100%;margin:8px 0 12px;" onclick="addCardioEntry('swim')">Add entry</button>
+          <canvas id="swimChart" height="140"></canvas>
+        </div>
+        <div class="card">
+          <h3>🚴 Cycle</h3>
+          <div class="form-row" style="flex-wrap:wrap;">
+            <input type="number" step="0.01" id="cycleDistance" placeholder="Distance (km)">
+            <input type="number" step="0.1" id="cycleTime" placeholder="Time (min)">
+            <input type="date" id="cycleDate">
+          </div>
+          <button class="btn-add" style="width:100%;margin:8px 0 12px;" onclick="addCardioEntry('cycle')">Add entry</button>
+          <canvas id="cycleChart" height="140"></canvas>
+        </div>
+        <div class="card">
+          <h3>🏃 Run</h3>
+          <div class="form-row" style="flex-wrap:wrap;">
+            <input type="number" step="0.01" id="runDistance" placeholder="Distance (km)">
+            <input type="number" step="0.1" id="runTime" placeholder="Time (min)">
+            <input type="date" id="runDate">
+          </div>
+          <button class="btn-add" style="width:100%;margin:8px 0 12px;" onclick="addCardioEntry('run')">Add entry</button>
+          <canvas id="runChart" height="140"></canvas>
+        </div>
+      </div>
       <div class="card">
         <h3>Log a PR</h3>
         <div class="form-row">
@@ -775,14 +872,13 @@
           <div class="cal-input-row">
             <input type="text" id="foodInput" placeholder="e.g. two scrambled eggs and a slice of toast" onkeydown="if(event.key==='Enter') logFood();">
             <button class="btn-add" id="logFoodBtn" onclick="logFood()">Log it</button>
-            <label class="scan-btn" title="Scan a nutrition label">
+            <label class="scan-btn" title="Scan your food">
               📷
-              <input type="file" accept="image/*" capture="environment" style="display:none;" onchange="handleLabelPhoto(this)">
+              <input type="file" accept="image/*" capture="environment" style="display:none;" onchange="handleFoodPhoto(this)">
             </label>
           </div>
-          <p class="cal-hint" style="margin:6px 0 0;">Or tap 📷 to scan a nutrition label instead of typing.</p>
+          <p class="cal-hint" style="margin:6px 0 0;">Or tap 📷 to snap your food and we'll take a guess. You can edit it before logging.</p>
           <div id="foodStatus"></div>
-          <div id="labelReviewBox"></div>
           <div class="log-list" id="foodLogList"></div>
         </div>
         <div class="card" style="margin-bottom:18px;">
@@ -1081,7 +1177,7 @@ let selectedDietDay = 0;
 function emptyData(){
   return {
     planner: { split:'Push/Pull/Legs', goal:'Hypertrophy', dayLabels: {...SPLIT_TEMPLATES['Push/Pull/Legs']}, exercises: {Monday:[],Tuesday:[],Wednesday:[],Thursday:[],Friday:[],Saturday:[],Sunday:[]} },
-    stats: { bodyweight: [], prs: [], workoutsCompleted: [] },
+    stats: { bodyweight: [], prs: [], workoutsCompleted: [], swim: [], cycle: [], run: [] },
     diet: { profile:null, plan:null, dailyLog:null, goalHistory:[] },
     sports: { selected:'Basketball' },
     workoutSession: null
@@ -1429,6 +1525,9 @@ function enterApp(){
   if(data.diet.dailyLog === undefined) data.diet.dailyLog = null;
   if(data.workoutSession === undefined) data.workoutSession = null;
   if(!data.stats.workoutsCompleted) data.stats.workoutsCompleted = [];
+  if(!data.stats.swim) data.stats.swim = [];
+  if(!data.stats.cycle) data.stats.cycle = [];
+  if(!data.stats.run) data.stats.run = [];
   if(!data.diet.goalHistory) data.diet.goalHistory = [];
   ensureDietLogFresh();
   if(!data.sports) data.sports = emptyData().sports;
@@ -1799,12 +1898,51 @@ let bwChartInst=null, prChartInst=null;
 function renderStatsPage(){
   document.getElementById('bwDate').value = todayISO();
   document.getElementById('prDate').value = todayISO();
+  document.getElementById('swimDate').value = todayISO();
+  document.getElementById('cycleDate').value = todayISO();
+  document.getElementById('runDate').value = todayISO();
   renderBWChart();
   renderPRTable();
   renderExerciseFilter();
   renderPRChart();
   renderGoalHistory();
   renderWorkoutChart();
+  renderCardioChart('swim');
+  renderCardioChart('cycle');
+  renderCardioChart('run');
+}
+
+/* -------- Swim / Cycle / Run: distance + time -> speed, charted -------- */
+let cardioChartInst = { swim: null, cycle: null, run: null };
+const CARDIO_CONFIG = {
+  swim: { label: 'Swim', color: '#4da6ff' },
+  cycle: { label: 'Cycle', color: '#c6ff3d' },
+  run: { label: 'Run', color: '#ff5468' }
+};
+
+function addCardioEntry(type){
+  const distance = parseFloat(document.getElementById(type+'Distance').value);
+  const time = parseFloat(document.getElementById(type+'Time').value);
+  const date = document.getElementById(type+'Date').value || todayISO();
+  if(!distance || !time) return;
+  const speed = Math.round((distance / (time/60)) * 100) / 100; // km/h
+  data.stats[type].push({ distance, time, speed, date });
+  saveUserData();
+  document.getElementById(type+'Distance').value = '';
+  document.getElementById(type+'Time').value = '';
+  renderCardioChart(type);
+}
+
+function renderCardioChart(type){
+  const cfg = CARDIO_CONFIG[type];
+  const sorted = [...data.stats[type]].sort((a,b)=>new Date(a.date)-new Date(b.date));
+  const ctx = document.getElementById(type+'Chart').getContext('2d');
+  if(cardioChartInst[type]) cardioChartInst[type].destroy();
+  cardioChartInst[type] = new Chart(ctx, {
+    type:'line',
+    data:{ labels: sorted.map(e=>e.date), datasets:[{ label: cfg.label+' speed (km/h)', data: sorted.map(e=>e.speed), borderColor: cfg.color, backgroundColor: cfg.color+'1a', tension:.3, fill:true, pointRadius:3 }] },
+    options:{ plugins:{legend:{display:false}}, scales:{ x:{ticks:{color:'#90939c'}, grid:{color:'#2d3038'}}, y:{ticks:{color:'#90939c'}, grid:{color:'#2d3038'}, title:{display:true,text:'km/h',color:'#90939c'} } } }
+  });
 }
 
 let workoutChartInst = null;
@@ -2122,96 +2260,72 @@ function deleteFoodEntry(idx){
   renderCalorieCounter();
 }
 
-/* -------- Nutrition label scanning (free, client-side OCR via Tesseract.js) -------- */
-// No API, no key, no server cost: Tesseract.js runs entirely in the browser.
-// Loaded lazily (only once someone actually taps the scan button) so it
-// doesn't add load time for people who never use it.
-let tesseractLoaded = false;
-function loadTesseract(){
-  return new Promise((resolve, reject) => {
-    if(window.Tesseract){ tesseractLoaded = true; resolve(); return; }
-    const script = document.createElement('script');
-    script.src = 'https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js';
-    script.onload = () => { tesseractLoaded = true; resolve(); };
-    script.onerror = () => reject(new Error('scanner failed to load'));
-    document.head.appendChild(script);
+/* -------- Food photo recognition (free, client-side via TensorFlow.js + MobileNet) -------- */
+// No API, no key, no server cost: both libraries run entirely in the
+// browser, officially maintained by the TensorFlow team. Loaded lazily
+// (only once someone actually taps the scan button) so it doesn't add load
+// time for people who never use it.
+//
+// Honest limitation: MobileNet was trained on general photos (ImageNet),
+// not a dedicated food database, so it recognizes iconic single items well
+// (a banana, a pizza, a burger, a hot dog) but has no real concept of a
+// mixed home-cooked plate. Because of that, a scan never logs anything by
+// itself, it just fills in the existing food description box with its best
+// guess, so a wrong guess is a quick edit away rather than a dead end.
+let foodClassifierModel = null;
+let classifierLoading = null;
+function loadFoodClassifier(){
+  if(foodClassifierModel) return Promise.resolve();
+  if(classifierLoading) return classifierLoading;
+  classifierLoading = new Promise((resolve, reject) => {
+    const tfScript = document.createElement('script');
+    tfScript.src = 'https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4/dist/tf.min.js';
+    tfScript.onload = () => {
+      const mnScript = document.createElement('script');
+      mnScript.src = 'https://cdn.jsdelivr.net/npm/@tensorflow-models/mobilenet@2/dist/mobilenet.min.js';
+      mnScript.onload = async () => {
+        try{ foodClassifierModel = await mobilenet.load(); resolve(); }
+        catch(e){ reject(e); }
+      };
+      mnScript.onerror = () => reject(new Error('classifier failed to load'));
+      document.head.appendChild(mnScript);
+    };
+    tfScript.onerror = () => reject(new Error('tfjs failed to load'));
+    document.head.appendChild(tfScript);
   });
+  return classifierLoading;
 }
 
-// Pulls values out of raw OCR text from a UK/EU-style nutrition label. These
-// labels are regulated into a fairly predictable layout (Energy, Fat, of
-// which Saturates, Carbohydrate, of which Sugars, Protein, Salt, in that
-// order, "per 100g" column first), so grabbing the first number after each
-// keyword works reasonably well. It's a best-effort reading, not guaranteed,
-// which is exactly why the result is editable before anything gets logged.
-function parseNutritionLabel(text){
-  const t = text.toLowerCase().replace(/,/g, '.');
-  const grab = (re) => { const m = t.match(re); return m ? parseFloat(m[1]) : null; };
-  const cals = grab(/energy[^\d]*?(\d+(?:\.\d+)?)\s*kcal/) ?? grab(/(\d+(?:\.\d+)?)\s*kcal/);
-  const protein = grab(/protein[^\d]*?(\d+(?:\.\d+)?)\s*g/);
-  const carbs = grab(/carbohydrate[^\d]*?(\d+(?:\.\d+)?)\s*g/);
-  const fat = grab(/fat[^\d]*?(\d+(?:\.\d+)?)\s*g/);
-  return { cals: cals || 0, protein: protein || 0, carbs: carbs || 0, fat: fat || 0 };
-}
-
-async function handleLabelPhoto(fileInput){
+async function handleFoodPhoto(fileInput){
   const file = fileInput.files[0];
   fileInput.value = ''; // so picking the same photo again still fires onchange
   if(!file) return;
   const status = document.getElementById('foodStatus');
-  document.getElementById('labelReviewBox').innerHTML = '';
   status.innerHTML = `<p class="ai-thinking">Loading scanner…</p>`;
+  let imgUrl;
   try{
-    if(!tesseractLoaded) await loadTesseract();
-    status.innerHTML = `<p class="ai-thinking">Reading the label…</p>`;
-    const result = await Tesseract.recognize(file, 'eng');
-    const parsed = parseNutritionLabel(result.data.text);
-    status.innerHTML = '';
-    showLabelReview(parsed);
+    await loadFoodClassifier();
+    status.innerHTML = `<p class="ai-thinking">Looking at your photo…</p>`;
+    imgUrl = URL.createObjectURL(file);
+    const img = new Image();
+    await new Promise((resolve, reject) => { img.onload = resolve; img.onerror = reject; img.src = imgUrl; });
+    const predictions = await foodClassifierModel.classify(img);
+    if(!predictions.length){
+      status.innerHTML = `<p class="ai-error">Couldn't make that out, try a clearer photo or type the food in.</p>`;
+      return;
+    }
+    const top = predictions[0];
+    const guess = top.className.split(',')[0].trim();
+    const confidence = Math.round(top.probability * 100);
+    document.getElementById('foodInput').value = guess;
+    status.innerHTML = `<p class="cal-hint" style="margin:0;">Looks like <b>${escapeHtml(guess)}</b> (${confidence}% confident). Edit if that's wrong, then tap Log it.</p>`;
+    document.getElementById('foodInput').focus();
   }catch(e){
     console.error(e);
-    status.innerHTML = `<p class="ai-error">Couldn't read that label. Try a clearer, straight-on photo, or type the food in instead.</p>`;
+    status.innerHTML = `<p class="ai-error">Couldn't load the scanner right now. Try typing the food in instead.</p>`;
+  }finally{
+    if(imgUrl) URL.revokeObjectURL(imgUrl);
   }
-}
-
-function showLabelReview(parsed){
-  document.getElementById('labelReviewBox').innerHTML = `
-    <div class="label-review">
-      <p class="cal-hint" style="margin:0 0 10px;">Scanned values, shown per 100g, check they're right and set how much you're actually eating.</p>
-      <div class="form-row">
-        <div class="f"><label>Calories</label><input type="number" id="lrCals" value="${parsed.cals}"></div>
-        <div class="f"><label>Protein (g)</label><input type="number" id="lrP" value="${parsed.protein}"></div>
-        <div class="f"><label>Carbs (g)</label><input type="number" id="lrC" value="${parsed.carbs}"></div>
-        <div class="f"><label>Fat (g)</label><input type="number" id="lrF" value="${parsed.fat}"></div>
-        <div class="f"><label>Grams eaten</label><input type="number" id="lrGrams" value="100"></div>
-      </div>
-      <div style="display:flex;gap:8px;margin-top:12px;">
-        <button class="btn-add" onclick="confirmLabelScan()">Add to log</button>
-        <button class="workout-skip-btn" style="border:1px solid var(--border);border-radius:8px;" onclick="cancelLabelScan()">Cancel</button>
-      </div>
-    </div>`;
-}
-
-function cancelLabelScan(){
-  document.getElementById('labelReviewBox').innerHTML = '';
-}
-
-function confirmLabelScan(){
-  const grams = parseFloat(document.getElementById('lrGrams').value) || 100;
-  const mult = grams / 100;
-  const cals = parseFloat(document.getElementById('lrCals').value) || 0;
-  const p = parseFloat(document.getElementById('lrP').value) || 0;
-  const c = parseFloat(document.getElementById('lrC').value) || 0;
-  const f = parseFloat(document.getElementById('lrF').value) || 0;
-
-  ensureDietLogFresh();
-  data.diet.dailyLog.entries.push({
-    name: `Scanned label (${grams}g)`,
-    cals: Math.round(cals * mult), p: Math.round(p * mult), c: Math.round(c * mult), f: Math.round(f * mult)
-  });
-  saveUserData();
-  cancelLabelScan();
-  renderCalorieCounter();
 }
 
 function renderCalorieCounter(){
@@ -2532,6 +2646,7 @@ async function deleteProductAdmin(btn){
 /* ============================================================
    ADMIN PAGE
    ============================================================ */
+let adminOpen = { accounts:false, logs:false };
 async function renderAdminPage(){
   const box = document.getElementById('adminContent');
 
@@ -2564,9 +2679,9 @@ async function renderAdminPage(){
       <div class="card"><h3>Food logged today</h3><p class="stat-big small">${overview.totalFoodToday}</p></div>
       <div class="card"><h3>Server uptime</h3><p class="stat-big small">${uptime}</p></div>
     </div>
-    <div class="card">
-      <h3>Accounts</h3>
-      <p class="cal-hint" style="margin-bottom:12px;">Newest first. Deleting an account removes its login and all of its data immediately, that can't be undone.</p>
+    <details class="card adm-fold" data-k="accounts" ${adminOpen.accounts?'open':''} ontoggle="adminOpen.accounts=this.open">
+      <summary><h3>Accounts <span class="adm-count">${overview.users.length}</span></h3></summary>
+      <p class="cal-hint" style="margin:12px 0;">Newest first. Deleting an account removes its login and all of its data immediately, that can't be undone.</p>
       <div class="table-scroll">
       <table>
         <thead><tr><th>Username</th><th>Joined</th><th>PRs</th><th>Bodyweight</th><th>Sport</th><th></th></tr></thead>
@@ -2586,7 +2701,7 @@ async function renderAdminPage(){
         </tbody>
       </table>
       </div>
-    </div>
+    </details>
     <div class="card" style="margin-top:18px;">
       <h3>Daily active users</h3>
       <p class="cal-hint">Accounts that opened the site each day, last 14 days.</p>
@@ -2606,11 +2721,11 @@ async function renderAdminPage(){
         <button class="btn-add" onclick="postAnnouncement()">Post</button>
       </div>
     </div>
-    <div class="card" style="margin-top:18px;">
-      <h3>AI Nutritionist logs</h3>
-      <p class="cal-hint">Recent food entries people have typed. Unsuccessful ones show what wasn't recognized, useful for deciding what to add to FOOD_DB in server.js.</p>
+    <details class="card adm-fold" style="margin-top:18px;" ${adminOpen.logs?'open':''} ontoggle="adminOpen.logs=this.open">
+      <summary><h3>AI Nutritionist logs</h3></summary>
+      <p class="cal-hint" style="margin-top:12px;">Recent food entries people have typed. Unsuccessful ones show what wasn't recognized, useful for deciding what to add to FOOD_DB in server.js.</p>
       <div id="nutritionLogsBox"><p class="ai-thinking">Loading…</p></div>
-    </div>
+    </details>
     <div class="card" style="margin-top:18px;">
       <h3>Shop products</h3>
       <p class="cal-hint">Shown to everyone on the Shop tab. Image is a URL (host it wherever, the brand's own site is usually easiest), not a file upload.</p>

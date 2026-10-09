@@ -52,15 +52,15 @@ access there instead of any of this.
 
 ## A couple of things worth knowing
 
-- **Nutrition label scanner.** The 📷 button next to the food input in
-  Dietary lets someone photograph a packaging label instead of typing.
-  Runs on Tesseract.js, a free, open-source OCR engine that works entirely
-  in the visitor's own browser, no API, no key, no per-scan cost, nothing
-  server-side at all. It reads UK/EU-style labels reasonably well since
-  they follow a regulated layout, but OCR on a phone photo is never
-  perfect (lighting, angle, blur, unusual label layouts all affect it), so
-  the scanned numbers always show up in editable fields before anything
-  gets logged, never silently trusted.
+- **Food photo scanner.** The 📷 button next to the food input in Dietary
+  lets someone snap their meal instead of typing. It runs MobileNet (via
+  TensorFlow.js, loaded from jsDelivr the first time it's used), a free
+  open-source image classifier that works entirely in the visitor's own
+  browser: no API, no key, no per-scan cost, and photos never leave the
+  device. The guess drops into the food box, the user can edit it, and
+  tapping "Log it" sends it through the normal estimator so the calorie and
+  macro counters update. It's best at single, recognisable foods (burger,
+  pizza, banana) and weak on mixed plates, so the edit step matters.
 - **Shop tab.** Admin-managed product tiles (for paid brand promotions later).
   Add products from the Admin tab: title, redirect link, an image URL (not a
   file upload, point it at wherever the brand already hosts the image), and
