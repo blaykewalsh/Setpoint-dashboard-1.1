@@ -473,6 +473,21 @@
   .soc-empty{text-align:center;color:var(--muted);padding:40px 10px;}
   @media(max-width:900px){.soc-fab{bottom:18px;right:16px;}}
 
+  .soc-activity{padding:6px 16px 14px;border-left:4px solid var(--ac);margin:4px 14px 6px;background:var(--panel-2);border-radius:10px;}
+  .soc-act-title{display:flex;align-items:center;gap:8px;font-weight:700;font-size:15px;padding-top:12px;}
+  .soc-act-title span{font-size:22px;} .soc-act-title small{margin-left:auto;font-weight:500;color:var(--muted);font-size:11.5px;}
+  .soc-act-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(90px,1fr));gap:12px;margin-top:12px;}
+  .soc-act-stats div{display:flex;flex-direction:column;gap:2px;}
+  .soc-act-stats b{font-family:'Bebas Neue';font-weight:400;font-size:30px;line-height:1;letter-spacing:.02em;}
+  .soc-act-stats b small{font-family:Inter;font-size:11px;color:var(--muted);}
+  .soc-act-stats span{font-size:11.5px;color:var(--muted);}
+  .ent-list{max-height:210px;overflow-y:auto;margin-top:10px;border-top:1px solid var(--border);}
+  .ent-row{display:flex;align-items:center;gap:8px;padding:8px 2px;border-bottom:1px solid var(--border);font-size:12.5px;}
+  .ent-row .ent-main{flex:1;min-width:0;} .ent-row .ent-sub{color:var(--muted);font-size:11.5px;}
+  .ent-row input[type=number],.ent-row input[type=date]{width:100%;padding:6px 8px;border-radius:7px;border:1px solid var(--border);background:var(--panel);color:var(--text);font-size:12.5px;margin-bottom:4px;}
+  .ent-btn{background:none;border:none;color:var(--muted);font-size:12px;font-weight:600;padding:5px 7px;border-radius:7px;}
+  .ent-btn:hover{background:var(--panel-2);color:var(--text);}
+  .ent-bar{display:flex;gap:8px;align-items:center;margin-top:10px;font-size:12.5px;color:var(--muted);}
   /* ---------- FOOD HISTORY ---------- */
   .fh-days{display:grid;grid-template-columns:repeat(7,1fr);gap:8px;margin-bottom:16px;}
   .fh-day{display:flex;flex-direction:column;align-items:center;gap:2px;padding:10px 4px 8px;border-radius:14px;border:1px solid var(--border);background:var(--panel-2);color:var(--muted);font-size:11px;font-weight:600;}
@@ -811,6 +826,8 @@
             <button class="btn-add" onclick="addBodyweight()">Add entry</button>
           </div>
           <canvas id="bwChart" height="160"></canvas>
+          <div class="ent-bar"><label><input type="checkbox" id="bwSelAll" onchange="bwSelectAll(this)"> Select all</label><button class="btn-add" style="margin-left:auto;background:var(--panel-2);color:var(--red);" onclick="deleteSelectedBW()">Delete selected</button></div>
+          <div class="ent-list" id="bwList"></div>
         </div>
         <div class="card">
           <h3>PR trend</h3>
@@ -833,6 +850,7 @@
           </div>
           <button class="btn-add" style="width:100%;margin:8px 0 12px;" onclick="addCardioEntry('swim')">Add entry</button>
           <canvas id="swimChart" height="140"></canvas>
+          <div class="ent-list" id="swimList"></div>
         </div>
         <div class="card">
           <h3>🚴 Cycle</h3>
@@ -843,6 +861,7 @@
           </div>
           <button class="btn-add" style="width:100%;margin:8px 0 12px;" onclick="addCardioEntry('cycle')">Add entry</button>
           <canvas id="cycleChart" height="140"></canvas>
+          <div class="ent-list" id="cycleList"></div>
         </div>
         <div class="card">
           <h3>🏃 Run</h3>
@@ -853,6 +872,7 @@
           </div>
           <button class="btn-add" style="width:100%;margin:8px 0 12px;" onclick="addCardioEntry('run')">Add entry</button>
           <canvas id="runChart" height="140"></canvas>
+          <div class="ent-list" id="runList"></div>
         </div>
       </div>
       <div class="card">
@@ -1705,6 +1725,25 @@ function leftLabel(iso){
   const m = Math.max(0, Math.floor((new Date(iso).getTime()-Date.now())/60000));
   return m>=60 ? Math.floor(m/60)+'h left' : Math.max(1,m)+'m left';
 }
+function fmtDuration(min){
+  const t = Math.round(min*60), hh = Math.floor(t/3600), mm = Math.floor((t%3600)/60), ss = t%60;
+  return hh ? `${hh}:${String(mm).padStart(2,'0')}:${String(ss).padStart(2,'0')}` : `${mm}:${String(ss).padStart(2,'0')}`;
+}
+function fmtPace(min, perUnit){ // min = total minutes, perUnit = km or 0.1 km
+  const t = Math.round(min/perUnit*60); return `${Math.floor(t/60)}:${String(t%60).padStart(2,'0')}`;
+}
+function socActivityHtml(a){
+  const cfg = {run:['🏃','Run','#ff5468'],cycle:['🚴','Ride','#c6ff3d'],swim:['🏊','Swim','#4da6ff']}[a.type] || ['🏅','Activity','#c6ff3d'];
+  const pace = a.type==='run' ? `<div><b>${fmtPace(a.time,a.distance)}</b><span>Pace /km</span></div>` : a.type==='swim' ? `<div><b>${fmtPace(a.time,a.distance*10)}</b><span>Pace /100m</span></div>` : '';
+  return `<div class="soc-activity" style="--ac:${cfg[2]}">
+    <div class="soc-act-title"><span>${cfg[0]}</span>${cfg[1]}${a.date?`<small>${escapeHtml(a.date)}</small>`:''}</div>
+    <div class="soc-act-stats">
+      <div><b>${a.distance}<small> km</small></b><span>Distance</span></div>
+      <div><b>${fmtDuration(a.time)}</b><span>Time</span></div>
+      <div><b>${a.speed}<small> km/h</small></b><span>Speed</span></div>
+      ${pace}
+    </div></div>`;
+}
 function socPostHtml(p){
   const open = socialOpenComments.has(p.id);
   const comments = open ? `<div class="soc-comments">
@@ -1717,7 +1756,7 @@ function socPostHtml(p){
       ${isAdminUser?`<button class="soc-btn" data-pid="${p.id}" data-pinned="${p.pinned?1:0}" onclick="socTogglePin(this)">${p.pinned?'Unpin':'Pin'}</button>`:''}
       ${(p.mine||isAdminUser)?`<button class="soc-btn" data-pid="${p.id}" onclick="socDeletePost(this)">Delete</button>`:`<button class="soc-btn" data-pid="${p.id}" onclick="socReport(this)">Report</button>`}
     </div>
-    ${socMediaHtml(p.media)}
+    ${p.activity ? socActivityHtml(p.activity) : socMediaHtml(p.media)}
     ${p.caption?`<div class="soc-caption">${escapeHtml(p.caption)}</div>`:''}
     <div class="soc-actions">
       <button class="soc-btn ${p.liked?'liked':''}" data-pid="${p.id}" onclick="socLike(this)">${p.liked?'♥':'♡'} ${p.likeCount}</button>
@@ -1734,12 +1773,15 @@ function socAdHtml(a){
 function renderSocialFeed(){
   const box = document.getElementById('socialFeed');
   if(!box) return;
-  if(!socialPosts.length){ box.innerHTML = `<div class="soc-empty">No posts yet. Tap the + button to share the first one.</div>`; return; }
   let out = '', ai = socialAdIdx;
+  if(!socialPosts.length) out += `<div class="soc-empty">No posts yet. Tap the + button to share the first one.</div>`;
   socialPosts.forEach((p,i)=>{
     out += socPostHtml(p);
-    if(socialAds.length && (i+1)%4===0){ out += socAdHtml(socialAds[ai % socialAds.length]); ai++; }
+    // an ad after the 2nd post, then one every 4 posts after that
+    if(socialAds.length && i%4===1){ out += socAdHtml(socialAds[ai % socialAds.length]); ai++; }
   });
+  // short feeds still show an ad, so it never goes missing
+  if(socialAds.length && socialPosts.length < 2) out += socAdHtml(socialAds[ai % socialAds.length]);
   box.innerHTML = out + (socialHasMore ? `<button class="btn btn-ghost" onclick="loadSocial(true)">Load more</button>` : '');
 }
 function rerenderPost(id){
@@ -1897,7 +1939,7 @@ async function loadSocialAdmin(){
     box.innerHTML = `
       <p class="cal-hint">Storage used: <b>${rep.storageMB} MB</b> of ${rep.storageCapMB} MB cap, ${rep.totalPosts} posts.</p>
       <h4 style="margin:14px 0 8px;font-size:13px;">Reported posts</h4>
-      ${rep.reported.length ? rep.reported.map(r=>`<div class="log-item"><div style="display:flex;gap:10px;align-items:center;min-width:0;">${r.media.kind==='video'?'🎞️':`<img src="/uploads/${encodeURIComponent(r.media.file)}" alt="" style="width:44px;height:44px;object-fit:cover;border-radius:8px;">`}<div><div class="li-name">${escapeHtml(r.username)}: ${escapeHtml((r.caption||'').slice(0,60)) || '(no caption)'}</div><div class="li-macro">${r.reports} report${r.reports>1?'s':''}</div></div></div><button class="del-row" title="Delete post" data-pid="${r.id}" onclick="adminDeleteReported(this)">✕</button></div>`).join('') : '<p class="empty">Nothing reported.</p>'}
+      ${rep.reported.length ? rep.reported.map(r=>`<div class="log-item"><div style="display:flex;gap:10px;align-items:center;min-width:0;">${!r.media?'🏃':r.media.kind==='video'?'🎞️':`<img src="/uploads/${encodeURIComponent(r.media.file)}" alt="" style="width:44px;height:44px;object-fit:cover;border-radius:8px;">`}<div><div class="li-name">${escapeHtml(r.username)}: ${escapeHtml((r.caption||'').slice(0,60)) || '(no caption)'}</div><div class="li-macro">${r.reports} report${r.reports>1?'s':''}</div></div></div><button class="del-row" title="Delete post" data-pid="${r.id}" onclick="adminDeleteReported(this)">✕</button></div>`).join('') : '<p class="empty">Nothing reported.</p>'}
       <h4 style="margin:18px 0 8px;font-size:13px;">Current ads</h4>
       ${ads.length ? ads.map(a=>`<div class="log-item"><div style="display:flex;gap:10px;align-items:center;min-width:0;">${a.media.kind==='video'?'🎞️':`<img src="/uploads/${encodeURIComponent(a.media.file)}" alt="" style="width:44px;height:44px;object-fit:cover;border-radius:8px;">`}<div><div class="li-name">${escapeHtml(a.caption||'(no caption)')}</div><div class="li-macro">${a.clicks||0} clicks · ${a.active?'Live':'Paused'}</div></div></div>
         <div style="white-space:nowrap;"><button class="soc-btn" data-aid="${a.id}" data-active="${a.active?1:0}" onclick="adminToggleAd(this)">${a.active?'Pause':'Resume'}</button><button class="del-row" data-aid="${a.id}" onclick="adminDeleteAd(this)">✕</button></div></div>`).join('') : '<p class="empty">No ads yet.</p>'}`;
@@ -2313,7 +2355,66 @@ function addCardioEntry(type){
   renderCardioChart(type);
 }
 
+let cardioEditing = null;
+function renderCardioList(type){
+  const el = document.getElementById(type+'List'); if(!el) return;
+  const rows = data.stats[type].map((e,i)=>({e,i})).sort((a,b)=>new Date(b.e.date)-new Date(a.e.date) || b.i-a.i);
+  el.innerHTML = rows.map(({e,i})=>{
+    if(cardioEditing && cardioEditing.type===type && cardioEditing.i===i){
+      return `<div class="ent-row"><div class="ent-main">
+        <input type="number" step="0.01" id="ceD" value="${e.distance}" placeholder="Distance (km)">
+        <input type="number" step="0.1" id="ceT" value="${e.time}" placeholder="Time (min)">
+        <input type="date" id="ceDate" value="${escapeAttr(e.date)}"></div>
+        <div><button class="ent-btn" data-type="${type}" data-i="${i}" onclick="saveCardioEdit(this)">Save</button><button class="ent-btn" onclick="cardioEditing=null;renderCardioList('${type}')">Cancel</button></div></div>`;
+    }
+    return `<div class="ent-row"><div class="ent-main"><b>${e.distance} km</b> · ${fmtDuration(e.time)} · ${e.speed} km/h<div class="ent-sub">${escapeHtml(e.date)}</div></div>
+      <button class="ent-btn" title="Share to Social" data-type="${type}" data-i="${i}" onclick="shareCardio(this)">Share</button>
+      <button class="ent-btn" title="Edit" data-type="${type}" data-i="${i}" onclick="editCardio(this)">Edit</button>
+      <button class="ent-btn" title="Delete" style="color:var(--red);" data-type="${type}" data-i="${i}" onclick="deleteCardio(this)">Delete</button></div>`;
+  }).join('') || `<p class="empty" style="margin:10px 0 0;">Nothing logged yet.</p>`;
+}
+function editCardio(b){ cardioEditing = { type:b.dataset.type, i:+b.dataset.i }; renderCardioList(b.dataset.type); }
+function saveCardioEdit(b){
+  const type = b.dataset.type, i = +b.dataset.i;
+  const distance = parseFloat(document.getElementById('ceD').value), time = parseFloat(document.getElementById('ceT').value);
+  const date = document.getElementById('ceDate').value || todayISO();
+  if(!(distance>0) || !(time>0)){ alert('Enter a distance and time above zero.'); return; }
+  data.stats[type][i] = { distance, time, speed: Math.round((distance/(time/60))*100)/100, date };
+  cardioEditing = null; saveUserData(); renderCardioChart(type);
+}
+function deleteCardio(b){
+  if(!confirm('Delete this entry?')) return;
+  data.stats[b.dataset.type].splice(+b.dataset.i,1); cardioEditing = null;
+  saveUserData(); renderCardioChart(b.dataset.type);
+}
+async function shareCardio(b){
+  if(!usingBackendAccount){ alert('Sharing needs your online Setpoint account. Log in on the website to post to Social.'); return; }
+  const e = data.stats[b.dataset.type][+b.dataset.i]; if(!e) return;
+  const caption = prompt('Add a caption (optional):', '');
+  if(caption === null) return;
+  try{
+    await apiRequest('/api/social/activity', { method:'POST', headers:{...socAuth(),'Content-Type':'application/json'}, body: JSON.stringify({ type:b.dataset.type, distance:e.distance, time:e.time, date:e.date, caption }) });
+    goPage('social');
+  }catch(err){ alert(err.message || 'Could not share that.'); }
+}
+
+function renderBWList(){
+  const el = document.getElementById('bwList'); if(!el) return;
+  const rows = data.stats.bodyweight.map((e,i)=>({e,i})).sort((a,b)=>new Date(b.e.date)-new Date(a.e.date) || b.i-a.i);
+  document.getElementById('bwSelAll').checked = false;
+  el.innerHTML = rows.map(({e,i})=>`<label class="ent-row" style="cursor:pointer;"><input type="checkbox" class="bw-sel" value="${i}"><span class="ent-main"><b>${e.weight} kg</b> <span class="ent-sub">${escapeHtml(e.date)}</span></span></label>`).join('') || `<p class="empty" style="margin:10px 0 0;">No entries yet.</p>`;
+}
+function bwSelectAll(cb){ document.querySelectorAll('.bw-sel').forEach(x=>x.checked = cb.checked); }
+function deleteSelectedBW(){
+  const idx = [...document.querySelectorAll('.bw-sel:checked')].map(x=>+x.value);
+  if(!idx.length){ alert('Tick the entries you want to delete first.'); return; }
+  if(!confirm(`Delete ${idx.length} bodyweight ${idx.length>1?'entries':'entry'}?`)) return;
+  data.stats.bodyweight = data.stats.bodyweight.filter((_,i)=>!idx.includes(i));
+  saveUserData(); renderBWChart();
+}
+
 function renderCardioChart(type){
+  renderCardioList(type);
   const cfg = CARDIO_CONFIG[type];
   const sorted = [...data.stats[type]].sort((a,b)=>new Date(a.date)-new Date(b.date));
   const ctx = document.getElementById(type+'Chart').getContext('2d');
@@ -2355,6 +2456,7 @@ function addBodyweight(){
 }
 
 function renderBWChart(){
+  renderBWList();
   const sorted = [...data.stats.bodyweight].sort((a,b)=>new Date(a.date)-new Date(b.date));
   const ctx = document.getElementById('bwChart').getContext('2d');
   if(bwChartInst) bwChartInst.destroy();
@@ -3152,7 +3254,7 @@ async function renderAdminPage(){
     </details>
     <details class="card adm-fold" style="margin-top:18px;" ${adminOpen.social?'open':''} ontoggle="adminOpen.social=this.open">
       <summary><h3>Social ads &amp; moderation</h3></summary>
-      <p class="cal-hint" style="margin-top:12px;">Ads appear in everyone's feed, about every fourth post, marked "Sponsored". Tapping one opens your link in a new tab. To pin a post, use the Pin button on it in the Social tab.</p>
+      <p class="cal-hint" style="margin-top:12px;">Ads appear in everyone's feed, after the second post and then every few posts, marked "Sponsored". Tapping one opens your link in a new tab. To pin a post, use the Pin button on it in the Social tab.</p>
       <div class="form-row" style="align-items:flex-start;flex-wrap:wrap;">
         <input type="file" id="adFile" accept="image/*,video/mp4,video/quicktime,video/webm" style="flex:1;min-width:180px;">
       </div>

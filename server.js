@@ -816,7 +816,7 @@ function safeLink(v) {
 function viewPost(p, me) {
   return {
     id: p.id, username: p.username, isAdminAuthor: !!p.isAdminAuthor, caption: p.caption,
-    media: p.media, createdAt: p.createdAt, pinned: !!p.pinned,
+    media: p.media || null, activity: p.activity || null, createdAt: p.createdAt, pinned: !!p.pinned,
     expiresAt: p.pinned ? null : new Date(Math.max(new Date(p.createdAt).getTime(), p.unpinnedAt || 0) + POST_LIFETIME_MS).toISOString(),
     likeCount: p.likes.length, liked: p.likes.includes(me),
     mine: p.userKey === me,
@@ -853,6 +853,32 @@ app.post('/api/social/posts', requireAuth, rawUpload, (req, res) => {
     isAdminAuthor: isAdminKey(req.userKey), caption,
     media: { file: saved.file, kind: saved.kind }, createdAt: new Date().toISOString(),
     likes: [], comments: [], reports: [], pinned: false
+  };
+  posts.push(post);
+  writeJSON(POSTS_FILE, posts);
+  res.json(viewPost(post, req.userKey));
+});
+
+// Share a logged run / cycle / swim as a Strava-style post (no media, just the numbers).
+app.post('/api/social/activity', requireAuth, (req, res) => {
+  const b = req.body || {};
+  const type = ['run', 'cycle', 'swim'].includes(b.type) ? b.type : null;
+  const distance = Number(b.distance), time = Number(b.time);
+  if (!type || !(distance > 0 && distance <= 1000) || !(time > 0 && time <= 6000)) return res.status(400).json({ error: 'That activity doesn\'t look right.' });
+  const posts = readJSON(POSTS_FILE, []);
+  const dayAgo = Date.now() - 24 * 3600 * 1000;
+  if (!isAdminKey(req.userKey) && posts.filter(p => p.userKey === req.userKey && new Date(p.createdAt).getTime() > dayAgo).length >= MAX_POSTS_PER_DAY) {
+    return res.status(429).json({ error: 'You\'ve hit the limit of ' + MAX_POSTS_PER_DAY + ' posts per day. Try again tomorrow.' });
+  }
+  const user = readJSON(USERS_FILE, {})[req.userKey];
+  if (!user) return res.status(404).json({ error: 'Account not found.' });
+  const date = /^\d{4}-\d{2}-\d{2}$/.test(b.date || '') ? b.date : null;
+  const post = {
+    id: crypto.randomBytes(8).toString('hex'), userKey: req.userKey, username: user.username,
+    isAdminAuthor: isAdminKey(req.userKey), caption: cleanText(b.caption, 500),
+    media: null,
+    activity: { type, distance: Math.round(distance * 100) / 100, time: Math.round(time * 10) / 10, speed: Math.round((distance / (time / 60)) * 100) / 100, date },
+    createdAt: new Date().toISOString(), likes: [], comments: [], reports: [], pinned: false
   };
   posts.push(post);
   writeJSON(POSTS_FILE, posts);
@@ -932,7 +958,7 @@ app.get('/api/admin/social/reports', requireAuth, requireAdmin, (req, res) => {
   res.json({
     storageMB: Math.round(uploadsSize() / 1048576), storageCapMB: Math.round(MAX_STORAGE_BYTES / 1048576), totalPosts: posts.length,
     reported: posts.filter(p => (p.reports || []).length).sort((a, b) => b.reports.length - a.reports.length)
-      .map(p => ({ id: p.id, username: p.username, caption: p.caption, media: p.media, reports: p.reports.length }))
+      .map(p => ({ id: p.id, username: p.username, caption: p.caption || (p.activity ? 'Shared a ' + p.activity.type : ''), media: p.media || null, reports: p.reports.length }))
   });
 });
 
