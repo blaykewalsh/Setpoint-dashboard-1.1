@@ -53,14 +53,17 @@ access there instead of any of this.
 ## A couple of things worth knowing
 
 - **Food photo scanner.** The 📷 button next to the food input in Dietary
-  lets someone snap their meal instead of typing. It runs MobileNet (via
-  TensorFlow.js, loaded from jsDelivr the first time it's used), a free
-  open-source image classifier that works entirely in the visitor's own
-  browser: no API, no key, no per-scan cost, and photos never leave the
-  device. The guess drops into the food box, the user can edit it, and
-  tapping "Log it" sends it through the normal estimator so the calorie and
-  macro counters update. It's best at single, recognisable foods (burger,
-  pizza, banana) and weak on mixed plates, so the edit step matters.
+  analyses a meal photo with a Swin Transformer fine-tuned on Food-101 (101
+  common dishes, Apache-2.0), run through Transformers.js. It all happens in
+  the visitor's own browser: no API, no key, no per-scan cost, and the photo
+  is never uploaded. The ~90 MB model is downloaded once from Hugging Face
+  and cached by the browser. A confident guess is added to the counters
+  straight away, with the runner-up guesses as one-tap fixes. It only knows
+  those 101 dishes, so unusual plates get the closest match.
+- **AI Nutritionist estimator.** `nutrition.js` + `dishes.js` hold the food
+  list (every scanner dish plus common UK dishes). It matches whole words,
+  tolerates typos, and falls back to Open Food Facts (free, no key) for
+  anything it doesn't know. Portion can be adjusted on every logged entry.
 - **Shop tab.** Admin-managed product tiles (for paid brand promotions later).
   Add products from the Admin tab: title, redirect link, an image URL (not a
   file upload, point it at wherever the brand already hosts the image), and

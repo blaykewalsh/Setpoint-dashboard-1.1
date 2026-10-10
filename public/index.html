@@ -488,6 +488,10 @@
   .ent-btn{background:none;border:none;color:var(--muted);font-size:12px;font-weight:600;padding:5px 7px;border-radius:7px;}
   .ent-btn:hover{background:var(--panel-2);color:var(--text);}
   .ent-bar{display:flex;gap:8px;align-items:center;margin-top:10px;font-size:12.5px;color:var(--muted);}
+  .scan-chips{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:8px 0 4px;}
+  .scan-chip{padding:6px 12px;border-radius:999px;border:1px solid var(--border);background:var(--panel-2);color:var(--text);font-size:12.5px;font-weight:600;}
+  .scan-chip:hover{border-color:var(--accent);color:var(--accent);}
+  .portion-sel{padding:4px 6px;border-radius:7px;border:1px solid var(--border);background:var(--panel-2);color:var(--muted);font-size:12px;}
   /* ---------- FOOD HISTORY ---------- */
   .fh-days{display:grid;grid-template-columns:repeat(7,1fr);gap:8px;margin-bottom:16px;}
   .fh-day{display:flex;flex-direction:column;align-items:center;gap:2px;padding:10px 4px 8px;border-radius:14px;border:1px solid var(--border);background:var(--panel-2);color:var(--muted);font-size:11px;font-weight:600;}
@@ -692,6 +696,9 @@
 
     <h3>What we collect</h3>
     <p>Your username, your email address (used only to contact you about your account or important updates, never sold or shared), and a hashed (never plain-text) password, plus whatever you enter into the app: workout splits, PRs, bodyweight, your diet profile and generated meal plans, your chosen sport, and any food descriptions you type into the AI Nutritionist.</p>
+
+    <h3>Food photo scanner</h3>
+    <p>When you use the camera button in Dietary, your photo is analysed on your own device and is never uploaded to us. The first time, your browser downloads the scanner model from Hugging Face (and its code from jsDelivr), so those services can see your IP address like any website you visit.</p>
 
     <h3>Social feed</h3>
     <p>Photos, videos, captions, likes and comments you post in the Social tab are visible to everyone with a Setpoint account, and the file links aren't login-protected, so don't post anything you wouldn't want seen. Don't post illegal, hateful or other people's private content. Anyone can report a post, and the admin can remove posts and comments. Posts are automatically deleted 24 hours after they're shared (the admin can pin a post to keep it up longer). Deleting your account deletes your posts and comments. The admin may run sponsored ads in the feed; clicking one opens an external site we don't control.</p>
@@ -982,8 +989,9 @@
               <input type="file" accept="image/*" capture="environment" style="display:none;" onchange="handleFoodPhoto(this)">
             </label>
           </div>
-          <p class="cal-hint" style="margin:6px 0 0;">Or tap 📷 to snap your food and we'll take a guess. You can edit it before logging.</p>
+          <p class="cal-hint" style="margin:6px 0 0;">Or tap 📷 to snap your meal. It's added to your counters straight away, and you can fix it if it's wrong.</p>
           <div id="foodStatus"></div>
+          <div id="recentFoods"></div>
           <div class="log-list" id="foodLogList"></div>
         </div>
         <div class="card" style="margin-bottom:18px;" id="foodHistoryCard">
@@ -1707,7 +1715,7 @@ async function dismissAnnouncement(){
 /* ============================================================
    SOCIAL FEED
    ============================================================ */
-let socialPosts = [], socialAds = [], socialHasMore = false, socialOpenComments = new Set(), socialAdIdx = 0;
+let socialPosts = [], socialAds = [], socialHasMore = false, socialOpenComments = new Set(), socialAdIdx = Math.floor(Math.random()*1000);
 let socialPendingBlob = null;
 function socAuth(){ return { 'Authorization':'Bearer '+authToken }; }
 function timeAgo(iso){
@@ -1773,15 +1781,16 @@ function socAdHtml(a){
 function renderSocialFeed(){
   const box = document.getElementById('socialFeed');
   if(!box) return;
-  let out = '', ai = socialAdIdx;
+  let out = '', ai = socialAdIdx, shown = new Set();
   if(!socialPosts.length) out += `<div class="soc-empty">No posts yet. Tap the + button to share the first one.</div>`;
+  const nextAd = () => { const a = socialAds[ai % socialAds.length]; ai++; shown.add(a.id); return socAdHtml(a); };
   socialPosts.forEach((p,i)=>{
     out += socPostHtml(p);
-    // an ad after the 2nd post, then one every 4 posts after that
-    if(socialAds.length && i%4===1){ out += socAdHtml(socialAds[ai % socialAds.length]); ai++; }
+    // an ad after every 2nd post, cycling through all running ads
+    if(socialAds.length && i%2===1) out += nextAd();
   });
-  // short feeds still show an ad, so it never goes missing
-  if(socialAds.length && socialPosts.length < 2) out += socAdHtml(socialAds[ai % socialAds.length]);
+  // any ad that hasn't had a slot yet still shows once, so every running ad is seen
+  socialAds.forEach(a => { if(!shown.has(a.id)) out += socAdHtml(a); });
   box.innerHTML = out + (socialHasMore ? `<button class="btn btn-ghost" onclick="loadSocial(true)">Load more</button>` : '');
 }
 function rerenderPost(id){
@@ -2719,26 +2728,39 @@ async function estimateFoodAI(description){
   return await response.json(); // {name, cals, p, c, f}
 }
 
+function nowHHMM(){ const d = new Date(); return String(d.getHours()).padStart(2,'0') + ':' + String(d.getMinutes()).padStart(2,'0'); }
+
+// Estimates a food description and adds it to today's log. Returns the new entry's index.
+async function logFoodText(desc){
+  ensureDietLogFresh();
+  const entry = await estimateFoodAI(desc);
+  entry.t = nowHHMM();
+  data.diet.dailyLog.entries.push(entry);
+  saveUserData();
+  return data.diet.dailyLog.entries.length - 1;
+}
+function foodErrorHtml(e){
+  const msg = (e && e.message) || '';
+  return /recogni[sz]e/i.test(msg)
+    ? `<p class="ai-error">${escapeHtml(msg)}</p>`
+    : `<p class="ai-error">Couldn't reach the AI Nutritionist just now. Try again in a moment.</p>`;
+}
 async function logFood(){
   const input = document.getElementById('foodInput');
   const desc = input.value.trim();
   if(!desc) return;
-  ensureDietLogFresh();
   const btn = document.getElementById('logFoodBtn');
   const status = document.getElementById('foodStatus');
   btn.disabled = true;
+  lastScan = null;
   status.innerHTML = `<p class="ai-thinking">AI Nutritionist is estimating that…</p>`;
   try{
-    const entry = await estimateFoodAI(desc);
-    const nowT = new Date();
-    entry.t = String(nowT.getHours()).padStart(2,'0') + ':' + String(nowT.getMinutes()).padStart(2,'0');
-    data.diet.dailyLog.entries.push(entry);
-    saveUserData();
+    await logFoodText(desc);
     input.value = '';
     status.innerHTML = '';
   }catch(e){
     console.error(e);
-    status.innerHTML = `<p class="ai-error">Couldn't reach the AI Nutritionist just now. Try again in a moment.</p>`;
+    status.innerHTML = foodErrorHtml(e);
   }
   btn.disabled = false;
   renderCalorieCounter();
@@ -2746,73 +2768,115 @@ async function logFood(){
 
 function deleteFoodEntry(idx){
   data.diet.dailyLog.entries.splice(idx,1);
+  lastScan = null;
   saveUserData();
   renderCalorieCounter();
 }
 
-/* -------- Food photo recognition (free, client-side via TensorFlow.js + MobileNet) -------- */
-// No API, no key, no server cost: both libraries run entirely in the
-// browser, officially maintained by the TensorFlow team. Loaded lazily
-// (only once someone actually taps the scan button) so it doesn't add load
-// time for people who never use it.
-//
-// Honest limitation: MobileNet was trained on general photos (ImageNet),
-// not a dedicated food database, so it recognizes iconic single items well
-// (a banana, a pizza, a burger, a hot dog) but has no real concept of a
-// mixed home-cooked plate. Because of that, a scan never logs anything by
-// itself, it just fills in the existing food description box with its best
-// guess, so a wrong guess is a quick edit away rather than a dead end.
-let foodClassifierModel = null;
-let classifierLoading = null;
-function loadFoodClassifier(){
-  if(foodClassifierModel) return Promise.resolve();
-  if(classifierLoading) return classifierLoading;
-  classifierLoading = new Promise((resolve, reject) => {
-    const tfScript = document.createElement('script');
-    tfScript.src = 'https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4/dist/tf.min.js';
-    tfScript.onload = () => {
-      const mnScript = document.createElement('script');
-      mnScript.src = 'https://cdn.jsdelivr.net/npm/@tensorflow-models/mobilenet@2/dist/mobilenet.min.js';
-      mnScript.onload = async () => {
-        try{ foodClassifierModel = await mobilenet.load(); resolve(); }
-        catch(e){ reject(e); }
-      };
-      mnScript.onerror = () => reject(new Error('classifier failed to load'));
-      document.head.appendChild(mnScript);
-    };
-    tfScript.onerror = () => reject(new Error('tfjs failed to load'));
-    document.head.appendChild(tfScript);
-  });
-  return classifierLoading;
+// Portion adjuster: scales the original estimate, so "that was a half portion" is one tap.
+function setPortion(sel){
+  const e = data.diet.dailyLog.entries[+sel.dataset.idx]; if(!e) return;
+  if(!e.base) e.base = { cals:e.cals, p:e.p, c:e.c, f:e.f };
+  const m = parseFloat(sel.value) || 1;
+  e.mult = m;
+  e.cals = Math.round(e.base.cals*m); e.p = Math.round(e.base.p*m); e.c = Math.round(e.base.c*m); e.f = Math.round(e.base.f*m);
+  saveUserData(); renderCalorieCounter();
 }
 
+// One-tap re-log of things you've eaten recently (no server call needed).
+let recentFoods = [];
+function renderRecentFoods(){
+  const el = document.getElementById('recentFoods'); if(!el) return;
+  const seen = new Set(); recentFoods = [];
+  const push = e => { const k = e.name.toLowerCase(); if(!seen.has(k) && recentFoods.length < 6){ seen.add(k); recentFoods.push(e); } };
+  [...data.diet.dailyLog.entries].reverse().forEach(push);
+  Object.keys(data.diet.history || {}).sort().reverse().forEach(d => [...data.diet.history[d]].reverse().forEach(push));
+  el.innerHTML = recentFoods.length ? `<div class="scan-chips"><span class="row-sub">Quick add:</span>${recentFoods.map((e,i)=>`<button class="scan-chip" data-i="${i}" onclick="quickAddFood(this)">${escapeHtml(e.name.length>34?e.name.slice(0,32)+'…':e.name)}</button>`).join('')}</div>` : '';
+}
+function quickAddFood(btn){
+  const e = recentFoods[+btn.dataset.i]; if(!e) return;
+  ensureDietLogFresh();
+  data.diet.dailyLog.entries.push({ name:e.name, cals:e.base?e.base.cals:e.cals, p:e.base?e.base.p:e.p, c:e.base?e.base.c:e.c, f:e.base?e.base.f:e.f, t:nowHHMM() });
+  saveUserData(); renderCalorieCounter();
+}
+
+/* -------- Food photo scanner (free, runs in the browser) -------- */
+// Uses a Swin Transformer fine-tuned on the Food-101 dataset (101 common dishes,
+// Apache-2.0) through Transformers.js. Everything runs on the visitor's device:
+// no API, no key, no per-scan cost, and the photo never leaves the phone. The
+// ~90 MB model file is downloaded once from Hugging Face and then cached by the
+// browser. Honest limits: it only knows those 101 dishes, so unusual or heavily
+// mixed plates get its closest guess, which is why alternatives are offered.
+const SCAN_TEXT = { steak:'225g steak', pork_chop:'200g pork chop', pizza:'2 pizza', lobster_roll_sandwich:'lobster roll' };
+function scanText(label){ return SCAN_TEXT[label] || label.replace(/_/g,' '); }
+function scanPretty(label){ const t = label.replace(/_/g,' '); return t.charAt(0).toUpperCase() + t.slice(1); }
+let foodPipe = null, foodPipeLoading = null, lastScan = null;
+function loadFoodClassifier(onProgress){
+  if(foodPipe) return Promise.resolve(foodPipe);
+  if(foodPipeLoading) return foodPipeLoading;
+  foodPipeLoading = (async () => {
+    const mod = await import('https://cdn.jsdelivr.net/npm/@huggingface/transformers@4.1.0');
+    mod.env.allowLocalModels = false;
+    foodPipe = await mod.pipeline('image-classification', 'onnx-community/swin-finetuned-food101-ONNX', { dtype:'q8', device:'wasm', progress_callback:onProgress });
+    return foodPipe;
+  })().catch(e => { foodPipeLoading = null; throw e; });
+  return foodPipeLoading;
+}
+function renderScanResult(){
+  const status = document.getElementById('foodStatus');
+  if(!lastScan){ return; }
+  const { idx, preds } = lastScan;
+  const logged = idx >= 0;
+  const alts = (logged ? preds.slice(1) : preds).map(p => `<button class="scan-chip" data-label="${escapeAttr(p.label)}" onclick="pickScanAlt(this)">${escapeHtml(scanPretty(p.label))}</button>`).join('');
+  status.innerHTML = logged
+    ? `<p class="cal-hint" style="margin:0 0 6px;">Added <b>${escapeHtml(scanPretty(preds[0].label))}</b> (${Math.round(preds[0].score*100)}% sure) to your counters. Not right? Tap what it actually is, change the portion below, or type it in.</p><div class="scan-chips">${alts}</div>`
+    : `<p class="cal-hint" style="margin:0 0 6px;">Not sure what that is. Tap the closest match to add it, or type it in.</p><div class="scan-chips">${alts}</div>`;
+}
+async function pickScanAlt(btn){
+  if(!lastScan) return;
+  const label = btn.dataset.label;
+  const entries = data.diet.dailyLog.entries;
+  if(lastScan.idx >= 0 && entries[lastScan.idx]) entries.splice(lastScan.idx, 1);   // swap out the wrong guess
+  const status = document.getElementById('foodStatus');
+  status.innerHTML = `<p class="ai-thinking">Updating…</p>`;
+  try{
+    const idx = await logFoodText(scanText(label));
+    const preds = [{ label, score: (lastScan.preds.find(p=>p.label===label)||{score:1}).score }, ...lastScan.preds.filter(p=>p.label!==label)];
+    lastScan = { idx, preds };
+    renderCalorieCounter(); renderScanResult();
+  }catch(e){ status.innerHTML = foodErrorHtml(e); renderCalorieCounter(); }
+}
 async function handleFoodPhoto(fileInput){
   const file = fileInput.files[0];
-  fileInput.value = ''; // so picking the same photo again still fires onchange
+  fileInput.value = '';
   if(!file) return;
   const status = document.getElementById('foodStatus');
-  status.innerHTML = `<p class="ai-thinking">Loading scanner…</p>`;
   let imgUrl;
   try{
-    await loadFoodClassifier();
+    let ready = false; try{ ready = !!localStorage.getItem('setpoint_scanner_ok'); }catch(e){}
+    if(!foodPipe && !ready && !confirm('The food scanner needs a one-time download of about 90 MB. It is saved on your device afterwards, so this only happens once. Best on Wi-Fi. Continue?')) return;
+    status.innerHTML = `<p class="ai-thinking">Loading the food scanner…</p>`;
+    await loadFoodClassifier(p => {
+      if(p && p.status === 'progress' && /\.onnx$/.test(p.file || '') && typeof p.progress === 'number'){
+        status.innerHTML = `<p class="ai-thinking">Downloading the food scanner… ${Math.round(p.progress)}% (one time only)</p>`;
+      }
+    });
+    try{ localStorage.setItem('setpoint_scanner_ok','1'); }catch(e){}
     status.innerHTML = `<p class="ai-thinking">Looking at your photo…</p>`;
-    imgUrl = URL.createObjectURL(file);
-    const img = new Image();
-    await new Promise((resolve, reject) => { img.onload = resolve; img.onerror = reject; img.src = imgUrl; });
-    const predictions = await foodClassifierModel.classify(img);
-    if(!predictions.length){
-      status.innerHTML = `<p class="ai-error">Couldn't make that out, try a clearer photo or type the food in.</p>`;
-      return;
+    const blob = await shrinkImage(file);
+    imgUrl = URL.createObjectURL(blob);
+    const preds = await foodPipe(imgUrl, { top_k: 3 });
+    if(!preds || !preds.length){ status.innerHTML = `<p class="ai-error">Couldn't make that out. Try a clearer photo, or type the food in.</p>`; return; }
+    lastScan = { idx: -1, preds };
+    if(preds[0].score >= 0.35){
+      status.innerHTML = `<p class="ai-thinking">Adding it to your counters…</p>`;
+      lastScan.idx = await logFoodText(scanText(preds[0].label));
+      renderCalorieCounter();
     }
-    const top = predictions[0];
-    const guess = top.className.split(',')[0].trim();
-    const confidence = Math.round(top.probability * 100);
-    document.getElementById('foodInput').value = guess;
-    status.innerHTML = `<p class="cal-hint" style="margin:0;">Looks like <b>${escapeHtml(guess)}</b> (${confidence}% confident). Edit if that's wrong, then tap Log it.</p>`;
-    document.getElementById('foodInput').focus();
+    renderScanResult();
   }catch(e){
     console.error(e);
-    status.innerHTML = `<p class="ai-error">Couldn't load the scanner right now. Try typing the food in instead.</p>`;
+    status.innerHTML = `<p class="ai-error">Couldn't run the food scanner here. Check your connection and try again, or type the food in instead.</p>`;
   }finally{
     if(imgUrl) URL.revokeObjectURL(imgUrl);
   }
@@ -2852,10 +2916,12 @@ function renderCalorieCounter(){
         <div class="li-macro">P${e.p}g · C${e.c}g · F${e.f}g</div>
       </div>
       <div style="display:flex;align-items:center;gap:10px;">
+        <select class="portion-sel" data-idx="${i}" onchange="setPortion(this)" title="Portion size">${[0.5,0.75,1,1.25,1.5,2,3].map(m=>`<option value="${m}" ${(e.mult||1)===m?'selected':''}>${m===1?'1 portion':'×'+m}</option>`).join('')}</select>
         <span>${e.cals} kcal</span>
         <button class="del-row" onclick="deleteFoodEntry(${i})">✕</button>
       </div>
     </div>`).join('') || `<p class="empty">Nothing logged yet today. Tell the AI Nutritionist what you ate above.</p>`;
+  renderRecentFoods();
   renderFoodHistory();
 }
 
@@ -3254,7 +3320,7 @@ async function renderAdminPage(){
     </details>
     <details class="card adm-fold" style="margin-top:18px;" ${adminOpen.social?'open':''} ontoggle="adminOpen.social=this.open">
       <summary><h3>Social ads &amp; moderation</h3></summary>
-      <p class="cal-hint" style="margin-top:12px;">Ads appear in everyone's feed, after the second post and then every few posts, marked "Sponsored". Tapping one opens your link in a new tab. To pin a post, use the Pin button on it in the Social tab.</p>
+      <p class="cal-hint" style="margin-top:12px;">Ads appear in everyone's feed, after every second post, and every running ad gets shown, marked "Sponsored". Tapping one opens your link in a new tab. To pin a post, use the Pin button on it in the Social tab.</p>
       <div class="form-row" style="align-items:flex-start;flex-wrap:wrap;">
         <input type="file" id="adFile" accept="image/*,video/mp4,video/quicktime,video/webm" style="flex:1;min-width:180px;">
       </div>
